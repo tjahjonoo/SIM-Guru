@@ -257,26 +257,33 @@
 
             <section id="view-dashboard" class="hidden space-y-6">
                 <!-- Welcome Banner -->
-                <div class="bg-gradient-to-r from-primary-800 via-primary-700 to-blue-600 text-white rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden">
-                    <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl pointer-events-none">
+                <div class="bg-gradient-to-r from-primary-800 via-primary-700 to-blue-600 text-white rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden transition-all duration-300">
+                    <div class="absolute -right-6 -bottom-6 opacity-10 text-8xl md:text-9xl pointer-events-none">
                         <i class="fa-solid fa-chalkboard-user"></i>
                     </div>
-                    <div class="relative z-10 max-w-2xl">
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
-                            <span class="inline-flex items-center px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-medium tracking-wide">
-                                <i class="fa-regular fa-calendar-check mr-1.5"></i> <span id="dash-date">Hari ini</span>
-                            </span>
-                            <span class="inline-flex items-center px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-mono font-semibold tracking-wider text-primary-100 border border-white/10">
-                                <i class="fa-regular fa-clock mr-1.5 text-amber-300"></i> <span id="dash-clock">00:00:00 WIB</span>
-                            </span>
+                    <div class="relative z-10 w-full flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                        <div class="space-y-2 flex-1">
+                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                <span class="inline-flex items-center px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-medium tracking-wide">
+                                    <i class="fa-regular fa-calendar-check mr-1.5"></i> <span id="dash-date">Hari ini</span>
+                                </span>
+                                <span class="inline-flex items-center px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-mono font-semibold tracking-wider text-primary-100 border border-white/10">
+                                    <i class="fa-regular fa-clock mr-1.5 text-amber-300"></i> <span id="dash-clock">00:00:00 WIB</span>
+                                </span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-primary-200 font-medium tracking-wide">Selamat Datang,</p>
+                            <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">
+                                <span id="dash-teacher-name">Heri Cahyono, S.Pd.</span>
+                            </h2>
                         </div>
-                        <p class="text-xs sm:text-sm text-primary-200 font-medium mb-0.5 tracking-wide">Selamat Datang,</p>
-                        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">
-                            <span id="dash-teacher-name">Heri Cahyono, S.Pd.</span>
-                        </h2>
-                        <p id="dash-teacher-desc" class="mt-3 text-primary-100 text-sm md:text-base leading-relaxed italic">
-                            "Pendidikan Pancasila mengajarkan kita bahwa perbedaan adalah warna, dan persatuan adalah lukisan terindah Indonesia. Jangan pernah lelah mencintai Indonesia yang hebat ini!"
-                        </p>
+
+                        <!-- Quote Box Card -->
+                        <div class="lg:max-w-xl xl:max-w-2xl w-full bg-white/10 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/15 shadow-inner relative transition-all duration-300">
+                            <i class="fa-solid fa-quote-left text-white/25 text-xl sm:text-2xl absolute top-3 left-3"></i>
+                            <p id="dash-teacher-desc" class="relative z-10 text-primary-100 text-xs sm:text-sm md:text-base leading-relaxed italic pl-6 pr-2">
+                                "Pendidikan Pancasila mengajarkan kita bahwa perbedaan adalah warna, dan persatuan adalah lukisan terindah Indonesia. Jangan pernah lelah mencintai Indonesia yang hebat ini!"
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -1530,6 +1537,11 @@
                 sidebar.classList.toggle('-translate-x-full');
                 if (overlay) overlay.classList.toggle('hidden');
             }
+
+            // Trigger window resize event to force Chart.js and flex layouts to re-render smoothly
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 150);
         }
 
         function toggleUserDropdown() {
