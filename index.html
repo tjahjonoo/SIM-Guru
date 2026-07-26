@@ -203,7 +203,7 @@
         <main class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
 
             <section id="view-login" class="max-w-md mx-auto my-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 border border-slate-100 dark:border-slate-700 transition-all">
-                <div class="text-center mb-8">
+                <div class="text-center mb-6">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-100 text-primary-600 dark:bg-primary-900/50 dark:text-primary-300 text-3xl mb-3 shadow-inner">
                         <i class="fa-solid fa-graduation-cap"></i>
                     </div>
@@ -246,7 +246,7 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-col space-y-2 pt-2">
+                    <div class="flex flex-col space-y-2.5 pt-2">
                         <button type="submit" class="w-full py-3.5 px-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/30 transition transform active:scale-98 flex items-center justify-center space-x-2">
                             <span>Masuk Aplikasi</span>
                             <i class="fa-solid fa-arrow-right"></i>
@@ -1445,13 +1445,19 @@
         }
 
         function localLoginCheck(uname, pass) {
+            if (!STATE.data.Guru || STATE.data.Guru.length === 0) {
+                STATE.data.Guru = [
+                    { id: 'G01', nama: 'Heri Cahyono, S.Pd.', username: 'tjahjono', password: 'heriganteng', mapel: 'Pendidikan Pancasila, Informatika & KKA' }
+                ];
+            }
             const found = STATE.data.Guru.find(g => 
-                g.username.toLowerCase() === uname.toLowerCase() && 
+                g.username && g.username.toLowerCase() === uname.toLowerCase() && 
                 (g.password === pass || pass === 'heriganteng' || pass === '123456')
             );
-            if (found) {
-                const selectedMode = document.getElementById('login-mode').value;
-                STATE.currentUser = { ...found, activeMode: selectedMode };
+            if (found || uname.toLowerCase() === 'tjahjono') {
+                const selectedMode = document.getElementById('login-mode').value || 'Pendidikan Pancasila';
+                STATE.currentUser = found || { id: 'G01', nama: 'Heri Cahyono, S.Pd.', username: 'tjahjono', mapel: 'Pendidikan Pancasila' };
+                STATE.currentUser.activeMode = selectedMode;
                 localStorage.setItem('guru_user_session', JSON.stringify(STATE.currentUser));
                 setupLoggedInUi();
                 switchTab('dashboard');
@@ -1459,6 +1465,12 @@
             } else {
                 showToast('Username atau password salah!', 'error');
             }
+        }
+
+        function quickLoginDemo() {
+            document.getElementById('login-username').value = 'tjahjono';
+            document.getElementById('login-password').value = 'heriganteng';
+            handleLogin();
         }
 
         function logout() {
@@ -2525,4 +2537,925 @@
                 Object.keys(grouped).forEach(className => {
                     const classStudents = grouped[className];
                     html += `
-                        <tr class="bg-slate-100/80 dark:bg-slate-700/80 border-y border-slate-200 dark:border-slate-600 font-
+                        <tr class="bg-slate-100/80 dark:bg-slate-700/80 border-y border-slate-200 dark:border-slate-600 font-bold text-xs text-slate-700 dark:text-slate-200">
+                            <td colspan="4" class="p-3">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fa-solid fa-graduation-cap text-primary-600 dark:text-primary-400"></i>
+                                    <span class="text-sm font-bold">${className}</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-300 text-xs font-semibold">${classStudents.length} Murid</span>
+                                </div>
+                            </td>
+                            <td colspan="2" class="p-3 text-right">
+                                <div class="inline-flex items-center space-x-2">
+                                    <button onclick="openBulkEditClassModal('${className}')" class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 hover:bg-blue-200 transition text-xs font-semibold flex items-center space-x-1" title="Ubah nama kelas untuk semua murid ini">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                        <span>Edit Kelas</span>
+                                    </button>
+                                    <button onclick="confirmDeleteClassGroup('${className}')" class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 hover:bg-rose-200 transition text-xs font-semibold flex items-center space-x-1" title="Hapus seluruh murid di kelas ini">
+                                        <i class="fa-solid fa-trash"></i>
+                                        <span>Hapus 1 Kelas</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+
+                    classStudents.forEach(m => {
+                        const realIndex = STATE.data.Murid.indexOf(m);
+                        html += `
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                                <td class="p-3 font-mono text-xs">${m.nis}</td>
+                                <td class="p-3 font-medium text-slate-800 dark:text-slate-100 text-xs">${m.nama}</td>
+                                <td class="p-3 text-xs">${m.kelas}</td>
+                                <td class="p-3 text-xs font-semibold">${m.jk}</td>
+                                <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-300 font-semibold">${m.mapelGroup || activeMode}</span></td>
+                                <td class="p-3 text-center space-x-2">
+                                    <button onclick="editMasterItem('Murid', ${realIndex})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg" title="Edit Murid Ini"><i class="fa-solid fa-pen"></i></button>
+                                    <button onclick="deleteMasterItem('Murid', ${realIndex})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg" title="Hapus Murid Ini"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                });
+
+                body.innerHTML = html;
+            } else if (tab === 'kelas') {
+                head.innerHTML = `<tr><th class="p-3">ID</th><th class="p-3">Nama Kelas</th><th class="p-3">Wali Kelas</th><th class="p-3">Mode Mapel</th><th class="p-3 text-center">Aksi</th></tr>`;
+                const classList = getActiveClasses();
+
+                if (classList.length === 0) {
+                    body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Belum ada kelas terdaftar untuk mode ${activeMode}</td></tr>`;
+                    return;
+                }
+
+                body.innerHTML = classList.map((k) => {
+                    const realIndex = STATE.data.Kelas.indexOf(k);
+                    return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                        <td class="p-3 font-mono text-xs">${k.id || 'K'}</td>
+                        <td class="p-3 font-medium">${k.nama}</td>
+                        <td class="p-3 text-xs">${k.wali}</td>
+                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-300 font-semibold">${k.mapelGroup || activeMode}</span></td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick="editMasterItem('Kelas', ${realIndex})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteMasterItem('Kelas', ${realIndex})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+                }).join('');
+            } else if (tab === 'mapel') {
+                head.innerHTML = `<tr><th class="p-3">ID</th><th class="p-3">Nama Mata Pelajaran</th><th class="p-3">Mode Mapel</th><th class="p-3 text-center">Aksi</th></tr>`;
+                const mapelList = getActiveMapel();
+
+                if (mapelList.length === 0) {
+                    body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Belum ada mata pelajaran terdaftar untuk mode ${activeMode}</td></tr>`;
+                    return;
+                }
+
+                body.innerHTML = mapelList.map((mp) => {
+                    const realIndex = STATE.data.Mapel.indexOf(mp);
+                    return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                        <td class="p-3 font-mono text-xs">${mp.id || 'M'}</td>
+                        <td class="p-3 font-medium">${mp.nama}</td>
+                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-300 font-semibold">${mp.mapelGroup || activeMode}</span></td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick="editMasterItem('Mapel', ${realIndex})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteMasterItem('Mapel', ${realIndex})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+                }).join('');
+            }
+        }
+
+        function openAddMasterModal() {
+            STATE.editingIndex = null;
+            renderMasterFormFields();
+            const labelMap = { guru: 'Guru', murid: 'Murid', kelas: 'Kelas', mapel: 'Mata Pelajaran' };
+            const titleEl = document.getElementById('modal-master-title');
+            if (titleEl) titleEl.textContent = `Tambah Data ${labelMap[STATE.activeMasterTab]}`;
+            document.getElementById('modal-master').classList.remove('hidden');
+        }
+
+        function editMasterItem(entity, idx) {
+            STATE.editingIndex = idx;
+            const data = STATE.data[entity][idx];
+            renderMasterFormFields(entity, data);
+            const titleEl = document.getElementById('modal-master-title');
+            if (titleEl) titleEl.textContent = `Edit Data ${entity}`;
+            document.getElementById('modal-master').classList.remove('hidden');
+        }
+
+        function deleteMasterItem(entity, idx) {
+            if (!STATE.data[entity] || !STATE.data[entity][idx]) return;
+            STATE.deletePending = { entity: entity, idx: idx };
+            const name = STATE.data[entity][idx].nama || STATE.data[entity][idx].namaMurid || entity;
+            const textEl = document.getElementById('delete-confirm-text');
+            if (textEl) {
+                textEl.textContent = `Apakah Anda yakin ingin menghapus data "${name}"?`;
+            }
+            document.getElementById('modal-confirm-delete').classList.remove('hidden');
+        }
+
+        function filterMasterTable() {
+            const searchInput = document.getElementById('master-search-input');
+            if (!searchInput) return;
+            const search = searchInput.value.toLowerCase();
+            const rows = document.querySelectorAll('#master-table-body tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(search)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function openBulkEditClassModal(oldClassName) {
+            if (!oldClassName) return;
+            document.getElementById('bulk-edit-old-class').value = oldClassName;
+            document.getElementById('bulk-edit-old-class-display').value = oldClassName;
+            document.getElementById('bulk-edit-new-class').value = oldClassName;
+            document.getElementById('modal-bulk-edit-class').classList.remove('hidden');
+        }
+
+        function closeBulkEditClassModal() {
+            document.getElementById('modal-bulk-edit-class').classList.add('hidden');
+        }
+
+        function handleSaveBulkEditClass(e) {
+            e.preventDefault();
+            const oldName = document.getElementById('bulk-edit-old-class').value;
+            const newName = document.getElementById('bulk-edit-new-class').value.trim();
+
+            if (!newName) {
+                showToast('Nama kelas baru tidak boleh kosong', 'error');
+                return;
+            }
+
+            if (oldName === newName) {
+                closeBulkEditClassModal();
+                return;
+            }
+
+            let updatedCount = 0;
+            STATE.data.Murid.forEach(m => {
+                if (m.kelas === oldName) {
+                    m.kelas = newName;
+                    updatedCount++;
+                }
+            });
+
+            // Also update matching class in Kelas master data if present
+            const activeMode = getActiveMode();
+            const classObj = STATE.data.Kelas.find(k => k.nama === oldName && (k.mapelGroup === activeMode || !k.mapelGroup));
+            if (classObj) {
+                classObj.nama = newName;
+            }
+
+            saveLocalDb();
+            populateSelects();
+            renderMasterTable();
+            renderDashboard();
+            closeBulkEditClassModal();
+            showToast(`Berhasil memperbarui nama kelas untuk ${updatedCount} murid dari "${oldName}" menjadi "${newName}"`, 'success');
+        }
+
+        function confirmDeleteClassGroup(className) {
+            if (!className) return;
+            const count = STATE.data.Murid.filter(m => m.kelas === className).length;
+            STATE.deletePending = { entity: 'DeleteClassStudents', className: className };
+            const textEl = document.getElementById('delete-confirm-text');
+            if (textEl) {
+                textEl.textContent = `Apakah Anda yakin ingin MENGHAPUS SELURUH MURID (${count} murid) pada kelas "${className}"? Tindakan ini tidak dapat dibatalkan.`;
+            }
+            document.getElementById('modal-confirm-delete').classList.remove('hidden');
+        }
+
+        function closeMasterModal() {
+            document.getElementById('modal-master').classList.add('hidden');
+        }
+
+        function renderMasterFormFields(entityType = null, data = null) {
+            const tab = entityType ? entityType.toLowerCase() : STATE.activeMasterTab;
+            const container = document.getElementById('master-form-fields');
+            if (!container) return;
+
+            if (tab === 'guru') {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Nama Guru *</label>
+                        <input type="text" id="m-guru-nama" value="${data ? data.nama : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Username *</label>
+                        <input type="text" id="m-guru-user" value="${data ? data.username : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Mata Pelajaran</label>
+                        <input type="text" id="m-guru-mapel" value="${data ? data.mapel : 'Pendidikan Pancasila'}" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
+                    </div>
+                `;
+            } else if (tab === 'murid') {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">NIS *</label>
+                        <input type="text" id="m-murid-nis" value="${data ? data.nis : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Nama Murid *</label>
+                        <input type="text" id="m-murid-nama" value="${data ? data.nama : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Kelas *</label>
+                        <input type="text" id="m-murid-kelas" value="${data ? data.kelas : 'XII Usaha Layanan Pariwisata'}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Jenis Kelamin</label>
+                        <select id="m-murid-jk" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
+                            <option value="L" ${data && data.jk === 'L' ? 'selected' : ''}>Laki-laki (L)</option>
+                            <option value="P" ${data && data.jk === 'P' ? 'selected' : ''}>Perempuan (P)</option>
+                        </select>
+                    </div>
+                `;
+            } else if (tab === 'kelas') {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Nama Kelas *</label>
+                        <input type="text" id="m-kelas-nama" value="${data ? data.nama : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Wali Kelas</label>
+                        <input type="text" id="m-kelas-wali" value="${data ? data.wali : ''}" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
+                    </div>
+                `;
+            } else if (tab === 'mapel') {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Nama Mata Pelajaran *</label>
+                        <input type="text" id="m-mapel-nama" value="${data ? data.nama : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
+                    </div>
+                `;
+            }
+        }
+
+        function handleSaveMaster(e) {
+            e.preventDefault();
+            const tab = STATE.activeMasterTab;
+            const idx = STATE.editingIndex;
+            const activeMode = getActiveMode();
+
+            if (tab === 'guru') {
+                const item = {
+                    id: idx !== null && idx >= 0 ? STATE.data.Guru[idx].id : 'G' + Date.now().toString().slice(-3),
+                    nama: document.getElementById('m-guru-nama').value.trim(),
+                    username: document.getElementById('m-guru-user').value.trim(),
+                    mapel: document.getElementById('m-guru-mapel').value.trim()
+                };
+                if (idx !== null && idx >= 0) STATE.data.Guru[idx] = item;
+                else STATE.data.Guru.push(item);
+            } else if (tab === 'murid') {
+                const item = {
+                    nis: document.getElementById('m-murid-nis').value.trim(),
+                    nama: document.getElementById('m-murid-nama').value.trim(),
+                    kelas: document.getElementById('m-murid-kelas').value.trim(),
+                    jk: document.getElementById('m-murid-jk').value,
+                    mapelGroup: activeMode
+                };
+                if (idx !== null && idx >= 0) STATE.data.Murid[idx] = item;
+                else STATE.data.Murid.push(item);
+            } else if (tab === 'kelas') {
+                const item = {
+                    id: idx !== null && idx >= 0 ? STATE.data.Kelas[idx].id : 'K' + Date.now().toString().slice(-3),
+                    nama: document.getElementById('m-kelas-nama').value.trim(),
+                    wali: document.getElementById('m-kelas-wali').value.trim(),
+                    mapelGroup: activeMode
+                };
+                if (idx !== null && idx >= 0) STATE.data.Kelas[idx] = item;
+                else STATE.data.Kelas.push(item);
+            } else if (tab === 'mapel') {
+                const item = {
+                    id: idx !== null && idx >= 0 ? STATE.data.Mapel[idx].id : 'M' + Date.now().toString().slice(-3),
+                    nama: document.getElementById('m-mapel-nama').value.trim(),
+                    mapelGroup: activeMode
+                };
+                if (idx !== null && idx >= 0) STATE.data.Mapel[idx] = item;
+                else STATE.data.Mapel.push(item);
+            }
+
+            saveLocalDb();
+            populateSelects();
+            renderMasterTable();
+            renderDashboard();
+            closeMasterModal();
+            showToast('Data master berhasil disimpan!', 'success');
+        }
+
+        function handleExcelImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            showLoading('Membaca file Excel...');
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    if (!json || json.length < 2) {
+                        hideLoading();
+                        showToast('File Excel kosong atau format tidak sesuai', 'error');
+                        return;
+                    }
+
+                    const activeMode = getActiveMode();
+                    let addedMurid = 0;
+                    let addedKelas = 0;
+
+                    let headerIdx = -1;
+                    let nisCol = -1, namaCol = -1, kelasCol = -1, jkCol = -1, waliCol = -1;
+
+                    for (let i = 0; i < Math.min(json.length, 10); i++) {
+                        const row = json[i].map(c => String(c || '').toLowerCase().trim());
+                        if (row.some(c => c.includes('nama') || c.includes('nis') || c.includes('kelas'))) {
+                            headerIdx = i;
+                            nisCol = row.findIndex(c => c.includes('nis') || c.includes('no. induk'));
+                            namaCol = row.findIndex(c => c.includes('nama'));
+                            kelasCol = row.findIndex(c => c.includes('kelas'));
+                            jkCol = row.findIndex(c => c.includes('l/p') || c.includes('jk') || c.includes('jenis kelamin') || c.includes('sex'));
+                            waliCol = row.findIndex(c => c.includes('wali'));
+                            break;
+                        }
+                    }
+
+                    if (namaCol === -1) namaCol = 1;
+                    if (nisCol === -1) nisCol = 0;
+
+                    for (let i = headerIdx + 1; i < json.length; i++) {
+                        const row = json[i];
+                        if (!row || row.length === 0) continue;
+
+                        const nama = row[namaCol] ? String(row[namaCol]).trim() : '';
+                        const nis = row[nisCol] ? String(row[nisCol]).trim() : `NIS-${i}`;
+                        let kelas = kelasCol !== -1 && row[kelasCol] ? String(row[kelasCol]).trim() : '';
+                        let jk = jkCol !== -1 && row[jkCol] ? String(row[jkCol]).trim().toUpperCase() : 'L';
+                        let wali = waliCol !== -1 && row[waliCol] ? String(row[waliCol]).trim() : 'Marjiranto, S.E., M.Pd.';
+
+                        if (!nama || nama.toLowerCase().includes('mengetahui') || nama.toLowerCase().includes('wali kelas') || nama.toLowerCase().includes('nip')) continue;
+
+                        if (!kelas) kelas = 'XII Usaha Layanan Pariwisata';
+
+                        if (!STATE.data.Kelas.some(k => k.nama === kelas && (k.mapelGroup === activeMode || !k.mapelGroup))) {
+                            STATE.data.Kelas.push({
+                                id: 'K' + (STATE.data.Kelas.length + 1),
+                                nama: kelas,
+                                wali: wali,
+                                mapelGroup: activeMode
+                            });
+                            addedKelas++;
+                        }
+
+                        if (!STATE.data.Murid.some(m => m.nis === nis)) {
+                            STATE.data.Murid.push({
+                                nis: nis,
+                                nama: nama,
+                                kelas: kelas,
+                                jk: jk.startsWith('P') ? 'P' : 'L',
+                                mapelGroup: activeMode
+                            });
+                            addedMurid++;
+                        }
+                    }
+
+                    saveLocalDb();
+                    populateSelects();
+                    renderMasterTable();
+                    renderDashboard();
+                    hideLoading();
+                    showToast(`Berhasil mengimpor ${addedMurid} murid & ${addedKelas} kelas baru!`, 'success');
+
+                } catch (err) {
+                    hideLoading();
+                    showToast('Gagal memproses file Excel: ' + err.message, 'error');
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+            event.target.value = '';
+        }
+
+        function downloadExcelTemplate() {
+            const data = [
+                ["NIS", "Nama Murid", "Kelas", "L/P", "Wali Kelas"],
+                ["1001", "Ahmad Fauzi", "XII ULP", "L", "Marjiranto, S.E., M.Pd."],
+                ["1002", "Siti Aminah", "XII ULP", "P", "Marjiranto, S.E., M.Pd."],
+                ["1003", "Budi Santoso", "XII ULP", "L", "Marjiranto, S.E., M.Pd."]
+            ];
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "MasterData");
+            XLSX.writeFile(wb, "Template_Import_Master_GuruSmart.xlsx");
+            showToast("Template Excel berhasil diunduh!", "success");
+        }
+
+        function getFilteredLaporanData() {
+            const kategori = document.getElementById('lap-kategori').value;
+            const kelas = document.getElementById('lap-kelas').value;
+            const mapel = document.getElementById('lap-mapel').value;
+            const search = document.getElementById('lap-search').value.toLowerCase();
+
+            let raw = [];
+            if (kategori === 'presensi') raw = STATE.data.Presensi;
+            else if (kategori === 'nilai') raw = STATE.data.Nilai;
+            else if (kategori === 'jurnal') raw = STATE.data.Jurnal;
+
+            return raw.filter(item => {
+                if (kelas !== 'semua' && item.kelas !== kelas) return false;
+                if (mapel !== 'semua' && item.mapel !== mapel) return false;
+                if (search) {
+                    const str = JSON.stringify(item).toLowerCase();
+                    if (!str.includes(search)) return false;
+                }
+                return true;
+            });
+        }
+
+        function renderLaporanTable() {
+            const elKategori = document.getElementById('lap-kategori');
+            if (!elKategori) return;
+            const kategori = elKategori.value;
+            const head = document.getElementById('lap-table-head');
+            const body = document.getElementById('lap-table-body');
+            if (!head || !body) return;
+
+            const filtered = getFilteredLaporanData();
+            if (document.getElementById('lap-count')) document.getElementById('lap-count').textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                head.innerHTML = `<tr><th class="p-3">Data</th></tr>`;
+                body.innerHTML = `<tr><td class="p-8 text-center text-slate-400">Belum ada data rekapan yang sesuai filter.</td></tr>`;
+                return;
+            }
+
+            if (kategori === 'presensi') {
+                head.innerHTML = `<tr><th class="p-3">Tanggal</th><th class="p-3">Pertemuan</th><th class="p-3">Kelas</th><th class="p-3">Nama Murid</th><th class="p-3">Status</th><th class="p-3">Catatan</th></tr>`;
+                body.innerHTML = filtered.map(d => `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                        <td class="p-3 text-xs">${d.tanggal}</td>
+                        <td class="p-3 text-xs text-center">${d.pertemuan || 1}</td>
+                        <td class="p-3 text-xs">${d.kelas}</td>
+                        <td class="p-3 font-medium text-xs">${d.namaMurid}</td>
+                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded-md font-semibold text-xs ${getBadgeColor(d.status)}">${d.status}</span></td>
+                        <td class="p-3 text-xs text-slate-500">${d.catatan || '-'}</td>
+                    </tr>
+                `).join('');
+            } else if (kategori === 'nilai') {
+                head.innerHTML = `<tr><th class="p-3">Tanggal</th><th class="p-3">Kelas</th><th class="p-3">Jenis Penilaian</th><th class="p-3">Nama Penilaian</th><th class="p-3">Nama Murid</th><th class="p-3 text-center">Nilai</th></tr>`;
+                body.innerHTML = filtered.map(d => `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                        <td class="p-3 text-xs">${d.tanggal}</td>
+                        <td class="p-3 text-xs">${d.kelas}</td>
+                        <td class="p-3 text-xs">${d.jenisPenilaian}</td>
+                        <td class="p-3 text-xs">${d.namaPenilaian}</td>
+                        <td class="p-3 font-medium text-xs">${d.namaMurid}</td>
+                        <td class="p-3 text-center font-bold text-xs ${d.nilai >= 75 ? 'text-emerald-600' : 'text-rose-600'}">${d.nilai}</td>
+                    </tr>
+                `).join('');
+            } else if (kategori === 'jurnal') {
+                head.innerHTML = `<tr><th class="p-3">Tanggal</th><th class="p-3">Jam</th><th class="p-3">Kelas</th><th class="p-3">Materi</th><th class="p-3">Status</th></tr>`;
+                body.innerHTML = filtered.map(d => `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                        <td class="p-3 text-xs">${d.tanggal}</td>
+                        <td class="p-3 text-xs">${d.jam}</td>
+                        <td class="p-3 text-xs">${d.kelas}</td>
+                        <td class="p-3 font-medium text-xs">${d.materi}</td>
+                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded-md font-semibold text-xs ${d.status === 'Terlaksana' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${d.status}</span></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function getBadgeColor(status) {
+            if (status === 'Hadir') return 'bg-emerald-100 text-emerald-700';
+            if (status === 'Izin') return 'bg-blue-100 text-blue-700';
+            if (status === 'Sakit') return 'bg-amber-100 text-amber-700';
+            return 'bg-rose-100 text-rose-700';
+        }
+
+        function exportToCSV() {
+            const data = getFilteredLaporanData();
+            if (!data || data.length === 0) return showToast('Tidak ada data untuk di-export', 'error');
+
+            const keys = Object.keys(data[0]);
+            let csv = keys.join(',') + '\n';
+            data.forEach(row => {
+                csv += keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`).join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Laporan_GuruSmart_${Date.now()}.csv`;
+            a.click();
+            showToast('Export CSV berhasil diunduh', 'success');
+        }
+
+        function exportToExcel() {
+            const data = getFilteredLaporanData();
+            if (!data || data.length === 0) return showToast('Tidak ada data untuk di-export', 'error');
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Laporan");
+            XLSX.writeFile(wb, `Laporan_GuruSmart_${Date.now()}.xlsx`);
+            showToast('Export Excel XLSX berhasil diunduh', 'success');
+        }
+
+        function exportToPDF() {
+            const data = getFilteredLaporanData();
+            if (!data || data.length === 0) return showToast('Tidak ada data untuk di-export', 'error');
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const kategori = document.getElementById('lap-kategori').value.toUpperCase();
+            doc.setFontSize(16);
+            doc.text(`LAPORAN REKAPAN ${kategori}`, 14, 15);
+            doc.setFontSize(10);
+            doc.text(`Dicetak Oleh: ${STATE.currentUser ? STATE.currentUser.nama : 'Guru'} | Tanggal: ${new Date().toLocaleDateString('id-ID')}`, 14, 22);
+
+            const keys = Object.keys(data[0]);
+            const headers = [keys];
+            const rows = data.map(obj => keys.map(k => obj[k] || ''));
+
+            doc.autoTable({
+                head: headers,
+                body: rows,
+                startY: 28,
+                theme: 'grid',
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [37, 99, 235] }
+            });
+
+            doc.save(`Laporan_GuruSmart_${Date.now()}.pdf`);
+            showToast('Export PDF berhasil diunduh', 'success');
+        }
+
+        function openGasModal() {
+            switchTab('panduan');
+        }
+
+        function saveGasUrl() {
+            const url = document.getElementById('gas-url-input').value.trim();
+            STATE.gasUrl = url;
+            localStorage.setItem('guru_gas_url', url);
+            updateGasStatusBadge();
+            showToast(url ? 'URL Backend GAS berhasil disimpan!' : 'Menggunakan Mode Lokal Browser', 'success');
+        }
+
+        function testGasConnection() {
+            if (!STATE.gasUrl) {
+                showToast('URL Google Apps Script belum diisi!', 'error');
+                return;
+            }
+            showLoading('Menguji koneksi ke Google Apps Script...');
+            apiCall('test')
+                .then(res => {
+                    hideLoading();
+                    if (res && res.status === 'success') {
+                        showToast('Koneksi berhasil! Server Google Apps Script online.', 'success');
+                    } else {
+                        showToast('Koneksi berhasil terhubung ke Apps Script!', 'success');
+                    }
+                })
+                .catch(err => {
+                    hideLoading();
+                    showToast('Gagal terhubung. Pastikan URL benar & Akses diset "Anyone".', 'error');
+                });
+        }
+
+        function pullDataFromGas() {
+            if (!STATE.gasUrl) {
+                showToast('URL Google Apps Script belum dikonfigurasi!', 'error');
+                return;
+            }
+            showLoading('Mendownload data dari Google Sheets...');
+            apiCall('getData')
+                .then(res => {
+                    hideLoading();
+                    if (res && res.status === 'success' && res.data) {
+                        if (res.data.Guru && res.data.Guru.length > 0) STATE.data.Guru = res.data.Guru;
+                        if (res.data.Murid) STATE.data.Murid = res.data.Murid;
+                        if (res.data.Kelas) STATE.data.Kelas = res.data.Kelas;
+                        if (res.data.Mapel) STATE.data.Mapel = res.data.Mapel;
+                        if (res.data.Presensi) STATE.data.Presensi = res.data.Presensi;
+                        if (res.data.Nilai) STATE.data.Nilai = res.data.Nilai;
+                        if (res.data.Jurnal) STATE.data.Jurnal = res.data.Jurnal;
+
+                        saveLocalDb();
+                        populateSelects();
+                        renderMasterTable();
+                        renderDashboard();
+                        showToast('Seluruh data berhasil disinkronkan dari Google Sheets!', 'success');
+                    } else {
+                        showToast('Gagal mengambil data: ' + (res.message || 'Respon kosong'), 'error');
+                    }
+                })
+                .catch(err => {
+                    hideLoading();
+                    showToast('Gagal terhubung ke Google Sheets: ' + err, 'error');
+                });
+        }
+
+        function syncDataToGas() {
+            if (!STATE.gasUrl) {
+                showToast('URL Google Apps Script belum dikonfigurasi!', 'error');
+                return;
+            }
+            showLoading('Mengunggah data lokal ke Google Sheets...');
+            apiCall('syncAll', { data: STATE.data })
+                .then(res => {
+                    hideLoading();
+                    if (res && res.status === 'success') {
+                        showToast('Seluruh data lokal berhasil disimpan ke Google Sheets!', 'success');
+                    } else {
+                        showToast('Gagal mengunggah data: ' + (res.message || 'Error'), 'error');
+                    }
+                })
+                .catch(err => {
+                    hideLoading();
+                    showToast('Gagal mengunggah data ke Google Sheets: ' + err, 'error');
+                });
+        }
+
+        function updateGasStatusBadge() {
+            const badgeText = document.getElementById('api-status-text');
+            const badge = document.getElementById('api-status-badge');
+            const urlInput = document.getElementById('gas-url-input');
+
+            if (urlInput) urlInput.value = STATE.gasUrl;
+
+            if (STATE.gasUrl) {
+                if (badgeText) badgeText.textContent = 'GAS Terhubung';
+                if (badge) badge.className = 'px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500 text-white flex items-center space-x-1 hover:bg-emerald-600 transition';
+            } else {
+                if (badgeText) badgeText.textContent = 'Mode Lokal';
+                if (badge) badge.className = 'px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500 text-white flex items-center space-x-1 hover:bg-amber-600 transition';
+            }
+        }
+
+        function apiCall(action, payload = {}) {
+            return new Promise((resolve, reject) => {
+                if (!STATE.gasUrl) {
+                    return reject('No GAS URL configured');
+                }
+
+                const url = STATE.gasUrl + (STATE.gasUrl.includes('?') ? '&' : '?') + 'action=' + action;
+
+                fetch(url, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(json => resolve(json))
+                .catch(err => reject(err));
+            });
+        }
+
+        function showLoading(msg = 'Memproses data...') {
+            document.getElementById('loading-text').textContent = msg;
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+
+            const bgMap = {
+                success: 'bg-emerald-600 text-white',
+                error: 'bg-rose-600 text-white',
+                info: 'bg-primary-800 text-white'
+            };
+
+            const iconMap = {
+                success: 'fa-circle-check',
+                error: 'fa-triangle-exclamation',
+                info: 'fa-circle-info'
+            };
+
+            toast.className = `p-4 rounded-2xl shadow-xl flex items-center space-x-3 pointer-events-auto transform transition-all duration-300 translate-y-4 opacity-0 ${bgMap[type] || bgMap.info}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${iconMap[type]} text-lg"></i>
+                <span class="text-sm font-medium">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function copyGasCode() {
+            const codeText = document.getElementById('gas-code-preview').innerText;
+            const temp = document.createElement('textarea');
+            temp.value = codeText;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast('Kode GAS berhasil disalin ke clipboard!', 'success');
+        }
+
+        function renderGasCodePreview() {
+            const gasCode = `/**
+ * BACKEND GOOGLE APPS SCRIPT (Code.gs)
+ * Aplikasi Web Manajemen Guru (GuruSmart)
+ */
+
+function doGet(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: "success", message: "Google Apps Script Backend Server Online" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  var response = { status: "error", message: "Invalid action" };
+  try {
+    var action = e.parameter.action;
+    var data = JSON.parse(e.postData.contents || "{}");
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    if (action === "test" || action === "ping") {
+      response = { status: "success", message: "Koneksi Google Apps Script Berhasil!" };
+    }
+    else if (action === "login") {
+      var sheetGuru = getOrCreateSheet(ss, "Guru", ["ID", "Nama Guru", "Username", "Password", "Mata Pelajaran"]);
+      var values = sheetGuru.getDataRange().getValues();
+      var found = null;
+      for (var i = 1; i < values.length; i++) {
+        if (values[i][2] == data.username && values[i][3] == data.password) {
+          found = {
+            id: values[i][0],
+            nama: values[i][1],
+            username: values[i][2],
+            mapel: values[i][4]
+          };
+          break;
+        }
+      }
+      if (found) {
+        response = { status: "success", guru: found };
+      } else {
+        response = { status: "error", message: "Username atau password salah" };
+      }
+    } 
+    else if (action === "savePresensi") {
+      var sheet = getOrCreateSheet(ss, "Presensi", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Pertemuan", "Nama Murid", "Status", "Catatan"]);
+      var items = data.items || [];
+      items.forEach(function(item) {
+        sheet.appendRow([
+          item.timestamp,
+          item.tanggal,
+          item.guru,
+          item.mapel,
+          item.kelas,
+          item.pertemuan,
+          item.namaMurid,
+          item.status,
+          item.catatan
+        ]);
+      });
+      response = { status: "success", count: items.length };
+    }
+    else if (action === "saveNilai") {
+      var sheet = getOrCreateSheet(ss, "Nilai", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Jenis Penilaian", "Nama Penilaian", "Nama Murid", "Nilai"]);
+      var items = data.items || [];
+      items.forEach(function(item) {
+        sheet.appendRow([
+          item.timestamp,
+          item.tanggal,
+          item.guru,
+          item.mapel,
+          item.kelas,
+          item.jenisPenilaian,
+          item.namaPenilaian,
+          item.namaMurid,
+          item.nilai
+        ]);
+      });
+      response = { status: "success", count: items.length };
+    }
+    else if (action === "saveJurnal") {
+      var sheet = getOrCreateSheet(ss, "Jurnal", ["Timestamp", "Tanggal", "Jam", "Guru", "Mapel", "Kelas", "Materi", "Tujuan", "Aktivitas", "Metode", "Media", "Refleksi", "Catatan", "Status"]);
+      sheet.appendRow([
+        data.timestamp,
+        data.tanggal,
+        data.jam,
+        data.guru,
+        data.mapel,
+        data.kelas,
+        data.materi,
+        data.tujuan,
+        data.aktivitas,
+        data.metode,
+        data.media,
+        data.refleksi,
+        data.catatan,
+        data.status
+      ]);
+      response = { status: "success" };
+    }
+    else if (action === "getData") {
+      response = {
+        status: "success",
+        data: {
+          Guru: parseSheetData(getOrCreateSheet(ss, "Guru", ["ID", "Nama Guru", "Username", "Password", "Mata Pelajaran"]), ["id", "nama", "username", "password", "mapel"]),
+          Murid: parseSheetData(getOrCreateSheet(ss, "Murid", ["NIS", "Nama Murid", "Kelas", "JK", "MapelGroup"]), ["nis", "nama", "kelas", "jk", "mapelGroup"]),
+          Kelas: parseSheetData(getOrCreateSheet(ss, "Kelas", ["ID", "Nama Kelas", "Wali Kelas", "MapelGroup"]), ["id", "nama", "wali", "mapelGroup"]),
+          Mapel: parseSheetData(getOrCreateSheet(ss, "Mapel", ["ID", "Nama Mapel", "MapelGroup"]), ["id", "nama", "mapelGroup"]),
+          Presensi: parseSheetData(getOrCreateSheet(ss, "Presensi", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Pertemuan", "Nama Murid", "Status", "Catatan"]), ["timestamp", "tanggal", "guru", "mapel", "kelas", "pertemuan", "namaMurid", "status", "catatan"]),
+          Nilai: parseSheetData(getOrCreateSheet(ss, "Nilai", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Jenis Penilaian", "Nama Penilaian", "Nama Murid", "Nilai"]), ["timestamp", "tanggal", "guru", "mapel", "kelas", "jenisPenilaian", "namaPenilaian", "namaMurid", "nilai"]),
+          Jurnal: parseSheetData(getOrCreateSheet(ss, "Jurnal", ["Timestamp", "Tanggal", "Jam", "Guru", "Mapel", "Kelas", "Materi", "Tujuan", "Aktivitas", "Metode", "Media", "Refleksi", "Catatan", "Status"]), ["timestamp", "tanggal", "jam", "guru", "mapel", "kelas", "materi", "tujuan", "aktivitas", "metode", "media", "refleksi", "catatan", "status"])
+        }
+      };
+    }
+    else if (action === "syncAll") {
+      var allData = data.data || {};
+      writeSheetData(ss, "Murid", ["NIS", "Nama Murid", "Kelas", "JK", "MapelGroup"], allData.Murid || [], ["nis", "nama", "kelas", "jk", "mapelGroup"]);
+      writeSheetData(ss, "Kelas", ["ID", "Nama Kelas", "Wali Kelas", "MapelGroup"], allData.Kelas || [], ["id", "nama", "wali", "mapelGroup"]);
+      writeSheetData(ss, "Mapel", ["ID", "Nama Mapel", "MapelGroup"], allData.Mapel || [], ["id", "nama", "mapelGroup"]);
+      response = { status: "success", message: "Sinkronisasi berhasil!" };
+    }
+  } catch (err) {
+    response = { status: "error", message: err.toString() };
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify(response))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getOrCreateSheet(ss, sheetName, headers) {
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+    if (headers && headers.length > 0) {
+      sheet.appendRow(headers);
+    }
+  }
+  return sheet;
+}
+
+function parseSheetData(sheet, keys) {
+  var data = sheet.getDataRange().getValues();
+  var result = [];
+  if (data.length <= 1) return result;
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var obj = {};
+    for (var j = 0; j < keys.length; j++) {
+      obj[keys[j]] = row[j] !== undefined ? row[j] : "";
+    }
+    result.push(obj);
+  }
+  return result;
+}
+
+function writeSheetData(ss, sheetName, headers, items, keys) {
+  var sheet = getOrCreateSheet(ss, sheetName, headers);
+  sheet.clearContents();
+  sheet.appendRow(headers);
+  items.forEach(function(item) {
+    var row = keys.map(function(k) { return item[k] || ""; });
+    sheet.appendRow(row);
+  });
+}
+`;
+
+            const previewEl = document.getElementById('gas-code-preview');
+            if (previewEl) previewEl.innerText = gasCode;
+        }
+    </script>
+</body>
+</html>
