@@ -266,11 +266,12 @@
                         <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-medium tracking-wide mb-3">
                             <i class="fa-regular fa-calendar-check mr-1"></i> <span id="dash-date">Hari ini</span>
                         </span>
+                        <p class="text-xs sm:text-sm text-primary-200 font-medium mb-0.5 tracking-wide">Selamat Datang,</p>
                         <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">
-                            Halo, <span id="dash-teacher-name">Heri Cahyono, S.Pd.</span>! 👋
+                            <span id="dash-teacher-name">Heri Cahyono, S.Pd.</span>
                         </h2>
-                        <p id="dash-teacher-desc" class="mt-2 text-primary-100 text-sm md:text-base leading-relaxed">
-                            Pengampu Mata Pelajaran Pendidikan Pancasila. Kelola presensi kelas, input penilaian harian & karakter kewarganegaraan, serta catat jurnal kegiatan mengajar Anda secara langsung.
+                        <p id="dash-teacher-desc" class="mt-3 text-primary-100 text-sm md:text-base leading-relaxed italic">
+                            "Pendidikan Pancasila mengajarkan kita bahwa perbedaan adalah warna, dan persatuan adalah lukisan terindah Indonesia. Jangan pernah lelah mencintai Indonesia yang hebat ini!"
                         </p>
                     </div>
                 </div>
@@ -340,7 +341,7 @@
                             <i class="fa-solid fa-user-check text-emerald-500"></i>
                         </div>
                         <p class="text-2xl font-bold text-slate-800 dark:text-white mt-2" id="stat-today-attendance">0</p>
-                        <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Siswa Terinput</span>
+                        <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Murid Terinput</span>
                     </div>
 
                     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
@@ -429,6 +430,10 @@
                             <button onclick="switchPresensiSubTab('riwayat')" id="btn-presensi-sub-riwayat" class="px-4 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition flex items-center space-x-1.5">
                                 <i class="fa-solid fa-clock-rotate-left"></i>
                                 <span>Riwayat & Edit Data</span>
+                            </button>
+                            <button onclick="switchPresensiSubTab('rekapan')" id="btn-presensi-sub-rekapan" class="px-4 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition flex items-center space-x-1.5">
+                                <i class="fa-solid fa-chart-pie"></i>
+                                <span>Rekapan & Persentase</span>
                             </button>
                         </div>
                     </div>
@@ -565,6 +570,80 @@
                         </div>
                     </div>
 
+                    <!-- SUB-VIEW 3: REKAPAN & PERSENTASE KEHADIRAN MURID -->
+                    <div id="presensi-sub-rekapan" class="hidden space-y-6">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 dark:bg-slate-700/30 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Pilih Kelas</label>
+                                    <select id="rekapan-pres-kelas" onchange="renderRekapanPresensi()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-xs font-semibold">
+                                        <option value="semua">-- Semua Kelas --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-circle-info mr-1 text-primary-500"></i>
+                                Persentase dihitung dari total kehadiran per jumlah pertemuan.
+                            </div>
+                        </div>
+
+                        <!-- Rekapan Quick Summary Cards -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Rata-Rata Kehadiran</p>
+                                    <h4 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1" id="stat-rekapan-avg">0%</h4>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Perhatian (&lt; 75%)</p>
+                                    <h4 class="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1" id="stat-rekapan-low">0</h4>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Pertemuan Maksimal</p>
+                                    <h4 class="text-2xl font-bold text-primary-600 dark:text-primary-400 mt-1" id="stat-rekapan-total-ptm">0</h4>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-950/50 text-primary-600 dark:text-primary-400 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-calendar-check"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rekapan Student Percentage Table -->
+                        <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-100 dark:bg-slate-700/70 text-slate-700 dark:text-slate-200 font-semibold border-b border-slate-200 dark:border-slate-700">
+                                    <tr>
+                                        <th class="p-3 w-12 text-center">No</th>
+                                        <th class="p-3">NIS</th>
+                                        <th class="p-3">Nama Murid</th>
+                                        <th class="p-3">Kelas</th>
+                                        <th class="p-3 text-center text-emerald-600 dark:text-emerald-400">Hadir</th>
+                                        <th class="p-3 text-center text-blue-600 dark:text-blue-400">Izin</th>
+                                        <th class="p-3 text-center text-amber-600 dark:text-amber-400">Sakit</th>
+                                        <th class="p-3 text-center text-rose-600 dark:text-rose-400">Alpha</th>
+                                        <th class="p-3 text-center">Total Ptm</th>
+                                        <th class="p-3 w-48">Persentase Kehadiran</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-rekapan-presensi-body" class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                    <!-- Dynamic Rekapan Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
             </section>
 
@@ -575,8 +654,8 @@
                             <i class="fa-solid fa-pen-to-square"></i>
                         </div>
                         <div>
-                            <h2 class="text-xl font-bold text-slate-800 dark:text-white">Input Penilaian Murid</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Masukkan nilai murid rentang 0 - 100</p>
+                            <h2 class="text-xl font-bold text-slate-800 dark:text-white">Input Nilai Murid</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Input nilai Tugas, PH, STS, SAS, Praktik, dan Proyek</p>
                         </div>
                     </div>
 
@@ -613,31 +692,31 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 p-4 bg-blue-50/50 dark:bg-slate-700/30 rounded-2xl border border-blue-100 dark:border-slate-700">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Jenis Penilaian</label>
-                            <select id="nilai-jenis" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm">
+                            <select id="nilai-jenis" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm font-semibold">
                                 <option value="Tugas">Tugas</option>
-                                <option value="Penilaian Harian">Penilaian Harian (PH)</option>
-                                <option value="Sumatif Tengah Semester">Sumatif Tengah Semester (STS)</option>
-                                <option value="Sumatif Akhir Semester">Sumatif Akhir Semester (SAS)</option>
+                                <option value="Penilaian Harian">Penilaian Harian</option>
+                                <option value="Sumatif Tengah Semester (STS)">Sumatif Tengah Semester (STS)</option>
+                                <option value="Sumatif Akhir Semester (SAS)">Sumatif Akhir Semester (SAS)</option>
                                 <option value="Praktik">Praktik</option>
                                 <option value="Proyek">Proyek</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Penilaian</label>
-                            <input type="text" id="nilai-nama-penilaian" placeholder="Contoh: PH 1 - Bab 1 Pancasila" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm">
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Penilaian *</label>
+                            <input type="text" id="nilai-nama-penilaian" placeholder="Contoh: PH 1 Bab 1" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Tanggal</label>
-                            <input type="date" id="nilai-tanggal" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm">
+                            <input type="date" id="nilai-tanggal" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
                         </div>
                     </div>
 
-                    <!-- Student Grade List Table -->
+                    <!-- Student List Table -->
                     <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700 mb-6">
                         <table class="w-full text-left text-sm">
                             <thead class="bg-slate-100 dark:bg-slate-700/70 text-slate-700 dark:text-slate-200 font-semibold border-b border-slate-200 dark:border-slate-700">
@@ -645,7 +724,7 @@
                                     <th class="p-3 w-12 text-center">No</th>
                                     <th class="p-3">NIS</th>
                                     <th class="p-3">Nama Murid</th>
-                                    <th class="p-3 w-48 text-center">Nilai (0 - 100)</th>
+                                    <th class="p-3 text-center w-40">Nilai (0 - 100)</th>
                                 </tr>
                             </thead>
                             <tbody id="table-nilai-body" class="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -1216,7 +1295,7 @@
             document.getElementById('sidebar-teacher-name').textContent = STATE.currentUser.nama;
             
             const activeMode = getActiveMode();
-            document.getElementById('sidebar-teacher-subject').textContent = `Guru ${activeMode}`;
+            document.getElementById('sidebar-teacher-subject').textContent = activeMode;
             document.getElementById('dash-teacher-name').textContent = STATE.currentUser.nama;
 
             const descEl = document.getElementById('dash-teacher-desc');
@@ -1224,7 +1303,7 @@
                 if (activeMode === 'Informatika & KKA') {
                     descEl.textContent = 'Pengampu Mata Pelajaran Informatika & KKA. Akses cepat presensi siswa, kelola nilai praktik & proyek komputasi, serta dokumentasikan jurnal pembelajaran digital Anda secara efisien.';
                 } else {
-                    descEl.textContent = 'Pengampu Mata Pelajaran Pendidikan Pancasila. Kelola presensi kelas, input penilaian harian & karakter kewarganegaraan, serta catat jurnal kegiatan mengajar Anda secara langsung.';
+                    descEl.textContent = '"Pendidikan Pancasila mengajarkan kita bahwa perbedaan adalah warna, dan persatuan adalah lukisan terindah Indonesia. Jangan pernah lelah mencintai Indonesia yang hebat ini!"';
                 }
             }
 
@@ -1357,6 +1436,14 @@
             if (dropdown) dropdown.classList.toggle('hidden');
         }
 
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour >= 3 && hour < 11) return 'Selamat Pagi';
+            if (hour >= 11 && hour < 15) return 'Selamat Siang';
+            if (hour >= 15 && hour < 18) return 'Selamat Sore';
+            return 'Selamat Malam';
+        }
+
         function initDateFields() {
             const today = new Date().toISOString().split('T')[0];
             if (document.getElementById('pres-tanggal')) document.getElementById('pres-tanggal').value = today;
@@ -1365,13 +1452,13 @@
 
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const formatted = new Date().toLocaleDateString('id-ID', options);
-            if (document.getElementById('sidebar-date-display')) document.getElementById('sidebar-date-display').textContent = formatted;
+            if (document.getElementById('sidebar-date-display')) document.getElementById('sidebar-date-display').textContent = getGreeting();
             if (document.getElementById('dash-date')) document.getElementById('dash-date').textContent = formatted;
             if (document.getElementById('today-breakdown-date')) document.getElementById('today-breakdown-date').textContent = formatted;
         }
 
         function populateSelects() {
-            const kelasSelects = ['pres-kelas', 'nilai-kelas', 'jurnal-kelas', 'lap-kelas', 'riwayat-pres-kelas', 'dash-chart-class'];
+            const kelasSelects = ['pres-kelas', 'nilai-kelas', 'jurnal-kelas', 'lap-kelas', 'riwayat-pres-kelas', 'rekapan-pres-kelas', 'dash-chart-class'];
             const mapelSelects = ['pres-mapel', 'nilai-mapel', 'jurnal-mapel', 'lap-mapel'];
 
             const activeClasses = getActiveClasses();
@@ -1383,7 +1470,7 @@
             kelasSelects.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
-                    if (id === 'lap-kelas' || id === 'riwayat-pres-kelas' || id === 'dash-chart-class') {
+                    if (id === 'lap-kelas' || id === 'riwayat-pres-kelas' || id === 'rekapan-pres-kelas' || id === 'dash-chart-class') {
                         el.innerHTML = '<option value="semua">Semua Kelas</option>' + classOptions;
                     } else {
                         el.innerHTML = classOptions;
@@ -1768,21 +1855,124 @@
         function switchPresensiSubTab(sub) {
             const inputView = document.getElementById('presensi-sub-input');
             const riwayatView = document.getElementById('presensi-sub-riwayat');
+            const rekapanView = document.getElementById('presensi-sub-rekapan');
+
             const btnInput = document.getElementById('btn-presensi-sub-input');
             const btnRiwayat = document.getElementById('btn-presensi-sub-riwayat');
+            const btnRekapan = document.getElementById('btn-presensi-sub-rekapan');
+
+            const activeClass = 'px-4 py-2 rounded-xl font-semibold bg-white dark:bg-slate-600 text-emerald-600 dark:text-white shadow-sm transition flex items-center space-x-1.5';
+            const inactiveClass = 'px-4 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition flex items-center space-x-1.5';
 
             if (sub === 'input') {
                 inputView.classList.remove('hidden');
                 riwayatView.classList.add('hidden');
-                btnInput.className = 'px-4 py-2 rounded-xl font-semibold bg-white dark:bg-slate-600 text-emerald-600 dark:text-white shadow-sm transition flex items-center space-x-1.5';
-                btnRiwayat.className = 'px-4 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition flex items-center space-x-1.5';
-            } else {
+                if (rekapanView) rekapanView.classList.add('hidden');
+
+                btnInput.className = activeClass;
+                btnRiwayat.className = inactiveClass;
+                if (btnRekapan) btnRekapan.className = inactiveClass;
+            } else if (sub === 'riwayat') {
                 inputView.classList.add('hidden');
                 riwayatView.classList.remove('hidden');
-                btnInput.className = 'px-4 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition flex items-center space-x-1.5';
-                btnRiwayat.className = 'px-4 py-2 rounded-xl font-semibold bg-white dark:bg-slate-600 text-emerald-600 dark:text-white shadow-sm transition flex items-center space-x-1.5';
+                if (rekapanView) rekapanView.classList.add('hidden');
+
+                btnInput.className = inactiveClass;
+                btnRiwayat.className = activeClass;
+                if (btnRekapan) btnRekapan.className = inactiveClass;
                 renderRiwayatPresensi();
+            } else if (sub === 'rekapan') {
+                inputView.classList.add('hidden');
+                riwayatView.classList.add('hidden');
+                if (rekapanView) rekapanView.classList.remove('hidden');
+
+                btnInput.className = inactiveClass;
+                btnRiwayat.className = inactiveClass;
+                if (btnRekapan) btnRekapan.className = activeClass;
+                renderRekapanPresensi();
             }
+        }
+
+        function renderRekapanPresensi() {
+            const selectedKelas = document.getElementById('rekapan-pres-kelas') ? document.getElementById('rekapan-pres-kelas').value : 'semua';
+            const tbody = document.getElementById('table-rekapan-presensi-body');
+            if (!tbody) return;
+
+            const activeMode = getActiveMode();
+            let students = STATE.data.Murid.filter(m => !m.mapelGroup || m.mapelGroup === activeMode || m.mapelGroup === 'Semua');
+            if (selectedKelas !== 'semua') {
+                students = students.filter(m => m.kelas === selectedKelas);
+            }
+
+            if (students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="p-8 text-center text-slate-400">Belum ada murid terdaftar pada kelas yang dipilih.</td></tr>`;
+                if (document.getElementById('stat-rekapan-avg')) document.getElementById('stat-rekapan-avg').textContent = '0%';
+                if (document.getElementById('stat-rekapan-low')) document.getElementById('stat-rekapan-low').textContent = '0';
+                if (document.getElementById('stat-rekapan-total-ptm')) document.getElementById('stat-rekapan-total-ptm').textContent = '0';
+                return;
+            }
+
+            let totalClassPercentageSum = 0;
+            let countLowAttendance = 0;
+            let maxMeetingsFound = 0;
+
+            const rowsHtml = students.map((m, idx) => {
+                const studentPres = STATE.data.Presensi.filter(p => p.namaMurid === m.nama || (p.kelas === m.kelas && p.namaMurid === m.nama));
+                const hadir = studentPres.filter(p => p.status === 'Hadir').length;
+                const izin = studentPres.filter(p => p.status === 'Izin').length;
+                const sakit = studentPres.filter(p => p.status === 'Sakit').length;
+                const alpha = studentPres.filter(p => p.status === 'Alpha').length;
+                const totalPtm = studentPres.length;
+
+                if (totalPtm > maxMeetingsFound) maxMeetingsFound = totalPtm;
+
+                const pct = totalPtm > 0 ? Math.round((hadir / totalPtm) * 100) : 0;
+                totalClassPercentageSum += pct;
+
+                if (pct < 75 && totalPtm > 0) countLowAttendance++;
+
+                let badgeClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300';
+                let barBg = 'bg-emerald-500';
+                if (totalPtm === 0) {
+                    badgeClass = 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400';
+                    barBg = 'bg-slate-300';
+                } else if (pct < 75) {
+                    badgeClass = 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300';
+                    barBg = 'bg-rose-500';
+                } else if (pct < 85) {
+                    badgeClass = 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300';
+                    barBg = 'bg-amber-500';
+                }
+
+                return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                        <td class="p-3 text-center text-xs font-semibold text-slate-500">${idx + 1}</td>
+                        <td class="p-3 font-mono text-xs">${m.nis}</td>
+                        <td class="p-3 font-medium text-slate-800 dark:text-slate-100 text-xs">${m.nama}</td>
+                        <td class="p-3 text-xs">${m.kelas}</td>
+                        <td class="p-3 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400">${hadir}</td>
+                        <td class="p-3 text-center text-xs font-bold text-blue-600 dark:text-blue-400">${izin}</td>
+                        <td class="p-3 text-center text-xs font-bold text-amber-600 dark:text-amber-400">${sakit}</td>
+                        <td class="p-3 text-center text-xs font-bold text-rose-600 dark:text-rose-400">${alpha}</td>
+                        <td class="p-3 text-center text-xs font-bold text-slate-700 dark:text-slate-200">${totalPtm}</td>
+                        <td class="p-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                                    <div class="${barBg} h-2 rounded-full transition-all duration-300" style="width: ${totalPtm > 0 ? pct : 0}%"></div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-lg text-xs font-bold ${badgeClass}">${totalPtm > 0 ? pct + '%' : 'N/A'}</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            tbody.innerHTML = rowsHtml;
+
+            const avgPct = students.length > 0 ? Math.round(totalClassPercentageSum / students.length) : 0;
+            if (document.getElementById('stat-rekapan-avg')) document.getElementById('stat-rekapan-avg').textContent = avgPct + '%';
+            if (document.getElementById('stat-rekapan-low')) document.getElementById('stat-rekapan-low').textContent = countLowAttendance;
+            if (document.getElementById('stat-rekapan-total-ptm')) document.getElementById('stat-rekapan-total-ptm').textContent = maxMeetingsFound;
         }
 
         function renderRiwayatPresensi() {
