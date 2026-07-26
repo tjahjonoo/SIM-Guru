@@ -713,6 +713,11 @@
                             <!-- Hidden File Input for Excel Import -->
                             <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="handleExcelImport(event)" class="hidden">
                             
+                            <button onclick="downloadExcelTemplate()" class="px-3.5 py-2.5 bg-slate-600 hover:bg-slate-700 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center space-x-2 shadow" title="Unduh Contoh Template Excel">
+                                <i class="fa-solid fa-file-download"></i>
+                                <span>Template Excel</span>
+                            </button>
+
                             <button onclick="document.getElementById('excel-file-input').click()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center space-x-2 shadow">
                                 <i class="fa-solid fa-file-excel"></i>
                                 <span>Import File Excel (.xlsx)</span>
@@ -915,18 +920,18 @@
     <!-- Modal Add/Edit Master Data -->
     <div id="modal-master" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700 transform transition-all">
-            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-700">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-700">
                 <h3 class="font-bold text-lg text-slate-800 dark:text-white" id="modal-master-title">Tambah Data</h3>
-                <button onclick="closeMasterModal()" class="text-slate-400 hover:text-slate-600 text-lg">
-                    <i class="fa-solid fa-xmark"></i>
+                <button type="button" onclick="closeMasterModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-            <form id="form-master-data" onsubmit="handleSaveMaster(event)" class="space-y-4">
+            <form id="form-master" onsubmit="handleSaveMaster(event)" class="space-y-4">
                 <div id="modal-master-fields" class="space-y-3">
-                    <!-- Dynamic form fields -->
+                    <!-- Dynamic form fields populated by JavaScript -->
                 </div>
-                <div class="flex justify-end space-x-2 pt-4">
-                    <button type="button" onclick="closeMasterModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button" onclick="closeMasterModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
                         Batal
                     </button>
                     <button type="submit" class="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl text-sm shadow transition">
@@ -934,6 +939,25 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Confirm Delete -->
+    <div id="modal-confirm-delete" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700 text-center transform transition-all">
+            <div class="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl mx-auto mb-4">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2">Konfirmasi Hapus Data</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-6" id="delete-confirm-text">Apakah Anda yakin ingin menghapus data murid ini?</p>
+            <div class="flex justify-center space-x-3">
+                <button type="button" onclick="closeDeleteModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    Batal
+                </button>
+                <button type="button" onclick="confirmExecuteDelete()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm shadow transition">
+                    Ya, Hapus Data
+                </button>
+            </div>
         </div>
     </div>
 
@@ -954,26 +978,16 @@
             activeMasterTab: 'guru',
             theme: localStorage.getItem('guru_theme') || 'light',
             editingIndex: null,
+            deletePending: { entity: null, idx: null },
             data: {
                 Guru: [
                     { id: 'G01', nama: 'Heri Cahyono, S.Pd.', username: 'tjahjono', password: 'heriganteng', mapel: 'Pendidikan Pancasila, Informatika & KKA' }
                 ],
-                Murid: [
-                    { nis: '1001', nama: 'Ahmad Fauzi', kelas: 'X IPA 1', jk: 'L' },
-                    { nis: '1002', nama: 'Anisa Putri', kelas: 'X IPA 1', jk: 'P' },
-                    { nis: '1003', nama: 'Bagas Pratama', kelas: 'X IPA 1', jk: 'L' },
-                    { nis: '1004', nama: 'Citra Dewi', kelas: 'X IPA 2', jk: 'P' },
-                    { nis: '1005', nama: 'Dian Nugraha', kelas: 'X IPA 2', jk: 'L' }
-                ],
-                Kelas: [
-                    { id: 'K01', nama: 'X IPA 1', wali: 'Heri Cahyono, S.Pd.' },
-                    { id: 'K02', nama: 'X IPA 2', wali: 'Heri Cahyono, S.Pd.' },
-                    { id: 'K03', nama: 'XI IPA 1', wali: 'Heri Cahyono, S.Pd.' }
-                ],
+                Murid: [],
+                Kelas: [],
                 Mapel: [
-                    { id: 'M01', nama: 'Pendidikan Pancasila' },
-                    { id: 'M02', nama: 'Informatika' },
-                    { id: 'M03', nama: 'KKA' }
+                    { id: 'M01', nama: 'Pendidikan Pancasila', mapelGroup: 'Pendidikan Pancasila' },
+                    { id: 'M02', nama: 'Informatika dan KKA', mapelGroup: 'Informatika & KKA' }
                 ],
                 Presensi: [],
                 Nilai: [],
@@ -988,12 +1002,17 @@
                 parsed.Guru = [
                     { id: 'G01', nama: 'Heri Cahyono, S.Pd.', username: 'tjahjono', password: 'heriganteng', mapel: 'Pendidikan Pancasila, Informatika & KKA' }
                 ];
-                parsed.Mapel = [
-                    { id: 'M01', nama: 'Pendidikan Pancasila' },
-                    { id: 'M02', nama: 'Informatika' },
-                    { id: 'M03', nama: 'KKA' }
-                ];
+                if (!parsed.Mapel || parsed.Mapel.length === 0) {
+                    parsed.Mapel = [
+                        { id: 'M01', nama: 'Pendidikan Pancasila', mapelGroup: 'Pendidikan Pancasila' },
+                        { id: 'M02', nama: 'Informatika dan KKA', mapelGroup: 'Informatika & KKA' }
+                    ];
+                }
+                // Selalu kosongkan data Murid dan Kelas sesuai instruksi
+                parsed.Murid = [];
+                parsed.Kelas = [];
                 STATE.data = parsed;
+                localStorage.setItem('guru_local_db', JSON.stringify(STATE.data));
             } catch (e) {
                 console.error('Failed parsing local data', e);
             }
@@ -1014,6 +1033,25 @@
 
         function saveLocalDb() {
             localStorage.setItem('guru_local_db', JSON.stringify(STATE.data));
+        }
+
+        function getActiveMode() {
+            return STATE.currentUser ? (STATE.currentUser.activeMode || 'Pendidikan Pancasila') : 'Pendidikan Pancasila';
+        }
+
+        function getActiveStudents() {
+            const mode = getActiveMode();
+            return STATE.data.Murid.filter(m => !m.mapelGroup || m.mapelGroup === mode || m.mapelGroup === 'Semua');
+        }
+
+        function getActiveClasses() {
+            const mode = getActiveMode();
+            return STATE.data.Kelas.filter(k => !k.mapelGroup || k.mapelGroup === mode || k.mapelGroup === 'Semua');
+        }
+
+        function getActiveMapel() {
+            const mode = getActiveMode();
+            return STATE.data.Mapel.filter(m => !m.mapelGroup || m.mapelGroup === mode || m.mapelGroup === 'Semua');
         }
 
         function initTheme() {
@@ -1049,7 +1087,7 @@
             document.getElementById('dropdown-user-fullname').textContent = STATE.currentUser.nama;
             document.getElementById('sidebar-teacher-name').textContent = STATE.currentUser.nama;
             
-            const activeMode = STATE.currentUser.activeMode || 'Pendidikan Pancasila';
+            const activeMode = getActiveMode();
             document.getElementById('sidebar-teacher-subject').textContent = `Guru ${activeMode}`;
             document.getElementById('dash-teacher-name').textContent = STATE.currentUser.nama;
 
@@ -1204,18 +1242,11 @@
             const kelasSelects = ['pres-kelas', 'nilai-kelas', 'jurnal-kelas', 'lap-kelas'];
             const mapelSelects = ['pres-mapel', 'nilai-mapel', 'jurnal-mapel', 'lap-mapel'];
 
-            const classOptions = STATE.data.Kelas.map(k => `<option value="${k.nama}">${k.nama}</option>`).join('');
+            const activeClasses = getActiveClasses();
+            const classOptions = activeClasses.map(k => `<option value="${k.nama}">${k.nama}</option>`).join('');
             
-            const activeMode = STATE.currentUser ? (STATE.currentUser.activeMode || 'Pendidikan Pancasila') : 'Pendidikan Pancasila';
-            let availableMapel = [];
-
-            if (activeMode === 'Pendidikan Pancasila') {
-                availableMapel = STATE.data.Mapel.filter(m => m.nama === 'Pendidikan Pancasila');
-            } else {
-                availableMapel = STATE.data.Mapel.filter(m => m.nama === 'Informatika' || m.nama === 'KKA');
-            }
-
-            const mapelOptions = availableMapel.map(m => `<option value="${m.nama}">${m.nama}</option>`).join('');
+            const activeMapel = getActiveMapel();
+            const mapelOptions = activeMapel.map(m => `<option value="${m.nama}">${m.nama}</option>`).join('');
 
             kelasSelects.forEach(id => {
                 const el = document.getElementById(id);
@@ -1243,8 +1274,8 @@
         let dashChart = null;
 
         function renderDashboard() {
-            document.getElementById('stat-class-count').textContent = STATE.data.Kelas.length;
-            document.getElementById('stat-student-count').textContent = STATE.data.Murid.length;
+            document.getElementById('stat-class-count').textContent = getActiveClasses().length;
+            document.getElementById('stat-student-count').textContent = getActiveStudents().length;
 
             const todayStr = new Date().toISOString().split('T')[0];
             const todayPres = STATE.data.Presensi.filter(p => p.tanggal === todayStr).length;
@@ -1304,10 +1335,14 @@
         function loadPresensiStudents() {
             const selectedKelas = document.getElementById('pres-kelas').value;
             const tbody = document.getElementById('table-presensi-body');
-            const filtered = STATE.data.Murid.filter(m => m.kelas === selectedKelas);
+            const activeMode = getActiveMode();
+            const filtered = STATE.data.Murid.filter(m => 
+                m.kelas === selectedKelas && 
+                (!m.mapelGroup || m.mapelGroup === activeMode || m.mapelGroup === 'Semua')
+            );
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Tidak ada murid terdaftar di kelas ${selectedKelas}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Tidak ada murid terdaftar untuk Mapel ${activeMode} di kelas ${selectedKelas}</td></tr>`;
                 return;
             }
 
@@ -1341,7 +1376,11 @@
 
         function setAllAttendance(status) {
             const selectedKelas = document.getElementById('pres-kelas').value;
-            const students = STATE.data.Murid.filter(m => m.kelas === selectedKelas);
+            const activeMode = getActiveMode();
+            const students = STATE.data.Murid.filter(m => 
+                m.kelas === selectedKelas && 
+                (!m.mapelGroup || m.mapelGroup === activeMode || m.mapelGroup === 'Semua')
+            );
             students.forEach(m => {
                 const radios = document.getElementsByName(`pres_${m.nis}`);
                 radios.forEach(r => {
@@ -1363,9 +1402,13 @@
                 return;
             }
 
-            const students = STATE.data.Murid.filter(m => m.kelas === kelas);
+            const activeMode = getActiveMode();
+            const students = STATE.data.Murid.filter(m => 
+                m.kelas === kelas && 
+                (!m.mapelGroup || m.mapelGroup === activeMode || m.mapelGroup === 'Semua')
+            );
             if (students.length === 0) {
-                showToast('Tidak ada murid untuk disimpan', 'error');
+                showToast(`Tidak ada murid terdaftar untuk ${activeMode} di kelas ini`, 'error');
                 return;
             }
 
@@ -1423,10 +1466,14 @@
         function loadNilaiStudents() {
             const selectedKelas = document.getElementById('nilai-kelas').value;
             const tbody = document.getElementById('table-nilai-body');
-            const filtered = STATE.data.Murid.filter(m => m.kelas === selectedKelas);
+            const activeMode = getActiveMode();
+            const filtered = STATE.data.Murid.filter(m => 
+                m.kelas === selectedKelas && 
+                (!m.mapelGroup || m.mapelGroup === activeMode || m.mapelGroup === 'Semua')
+            );
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Tidak ada murid terdaftar di kelas ${selectedKelas}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Tidak ada murid terdaftar untuk Mapel ${activeMode} di kelas ${selectedKelas}</td></tr>`;
                 return;
             }
 
@@ -1462,9 +1509,13 @@
                 return;
             }
 
-            const students = STATE.data.Murid.filter(m => m.kelas === kelas);
+            const activeMode = getActiveMode();
+            const students = STATE.data.Murid.filter(m => 
+                m.kelas === kelas && 
+                (!m.mapelGroup || m.mapelGroup === activeMode || m.mapelGroup === 'Semua')
+            );
             if (students.length === 0) {
-                showToast('Tidak ada murid untuk dinilai', 'error');
+                showToast(`Tidak ada murid terdaftar untuk ${activeMode} di kelas ini`, 'error');
                 return;
             }
 
@@ -1608,6 +1659,7 @@
             const head = document.getElementById('master-table-head');
             const body = document.getElementById('master-table-body');
             const tab = STATE.activeMasterTab;
+            const activeMode = getActiveMode();
 
             if (tab === 'guru') {
                 head.innerHTML = `<tr><th class="p-3">ID</th><th class="p-3">Nama Guru</th><th class="p-3">Username</th><th class="p-3">Mata Pelajaran</th><th class="p-3 text-center">Aksi</th></tr>`;
@@ -1624,44 +1676,77 @@
                     </tr>
                 `).join('');
             } else if (tab === 'murid') {
-                head.innerHTML = `<tr><th class="p-3">NIS</th><th class="p-3">Nama Murid</th><th class="p-3">Kelas</th><th class="p-3">L/P</th><th class="p-3 text-center">Aksi</th></tr>`;
-                body.innerHTML = STATE.data.Murid.map((m, idx) => `
+                head.innerHTML = `<tr><th class="p-3">NIS</th><th class="p-3">Nama Murid</th><th class="p-3">Kelas</th><th class="p-3">L/P</th><th class="p-3">Mode Mapel</th><th class="p-3 text-center">Aksi</th></tr>`;
+                const muridList = getActiveStudents();
+                
+                if (muridList.length === 0) {
+                    body.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada murid diimpor untuk mode ${activeMode}</td></tr>`;
+                    return;
+                }
+
+                body.innerHTML = muridList.map((m) => {
+                    const realIndex = STATE.data.Murid.indexOf(m);
+                    return `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
                         <td class="p-3 font-mono text-xs">${m.nis}</td>
                         <td class="p-3 font-medium">${m.nama}</td>
                         <td class="p-3 text-xs">${m.kelas}</td>
                         <td class="p-3 text-xs">${m.jk}</td>
+                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-300 font-semibold">${m.mapelGroup || activeMode}</span></td>
                         <td class="p-3 text-center space-x-2">
-                            <button onclick="editMasterItem('Murid', ${idx})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteMasterItem('Murid', ${idx})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="editMasterItem('Murid', ${realIndex})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteMasterItem('Murid', ${realIndex})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
-                `).join('');
+                `;
+                }).join('');
             } else if (tab === 'kelas') {
-                head.innerHTML = `<tr><th class="p-3">ID</th><th class="p-3">Nama Kelas</th><th class="p-3">Wali Kelas</th><th class="p-3 text-center">Aksi</th></tr>`;
-                body.innerHTML = STATE.data.Kelas.map((k, idx) => `
+                head.innerHTML = `<tr><th class="p-3">ID</th><th class="p-3">Nama Kelas</th><th class="p-3">Wali Kelas</th><th class="p-3">Mode Mapel</th><th class="p-3 text-center">Aksi</th></tr>`;
+                const classList = getActiveClasses();
+
+                if (classList.length === 0) {
+                    body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Belum ada kelas terdaftar untuk mode ${activeMode}</td></tr>`;
+                    return;
+                }
+
+                body.innerHTML = classList.map((k) => {
+                    const realIndex = STATE.data.Kelas.indexOf(k);
+                    return `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                        <td class="p-3 font-mono text-xs">${k.id || 'K' + idx}</td>
+                        <td class="p-3 font-mono text-xs">${k.id || 'K'}</td>
                         <td class="p-3 font-medium">${k.nama}</td>
                         <td class="p-3 text-xs">${k.wali}</td>
+                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-300 font-semibold">${k.mapelGroup || activeMode}</span></td>
                         <td class="p-3 text-center space-x-2">
-                            <button onclick="editMasterItem('Kelas', ${idx})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteMasterItem('Kelas', ${idx})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="editMasterItem('Kelas', ${realIndex})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteMasterItem('Kelas', ${realIndex})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
-                `).join('');
+                `;
+                }).join('');
             } else if (tab === 'mapel') {
-                head.innerHTML = `<tr><th class="p-3">ID</th><th class="p-3">Nama Mata Pelajaran</th><th class="p-3 text-center">Aksi</th></tr>`;
-                body.innerHTML = STATE.data.Mapel.map((mp, idx) => `
+                head.innerHTML = `<tr><th class="p-3">ID</th><th class="p-3">Nama Mata Pelajaran</th><th class="p-3">Mode Mapel</th><th class="p-3 text-center">Aksi</th></tr>`;
+                const mapelList = getActiveMapel();
+
+                if (mapelList.length === 0) {
+                    body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Belum ada mata pelajaran terdaftar untuk mode ${activeMode}</td></tr>`;
+                    return;
+                }
+
+                body.innerHTML = mapelList.map((mp) => {
+                    const realIndex = STATE.data.Mapel.indexOf(mp);
+                    return `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                        <td class="p-3 font-mono text-xs">${mp.id || 'M' + idx}</td>
+                        <td class="p-3 font-mono text-xs">${mp.id || 'M'}</td>
                         <td class="p-3 font-medium">${mp.nama}</td>
+                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-300 font-semibold">${mp.mapelGroup || activeMode}</span></td>
                         <td class="p-3 text-center space-x-2">
-                            <button onclick="editMasterItem('Mapel', ${idx})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteMasterItem('Mapel', ${idx})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="editMasterItem('Mapel', ${realIndex})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteMasterItem('Mapel', ${realIndex})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
-                `).join('');
+                `;
+                }).join('');
             }
         }
 
@@ -1679,59 +1764,63 @@
                     
                     let importedStudentsCount = 0;
                     let importedClassesCount = 0;
+                    const currentActiveMode = getActiveMode();
 
                     workbook.SheetNames.forEach(sheetName => {
                         const worksheet = workbook.Sheets[sheetName];
                         const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
                         if (json.length > 0) {
-                            let nisIdx = -1, namaIdx = -1, kelasIdx = -1, jkIdx = -1;
+                            let nisIdx = -1, namaIdx = -1, kelasIdx = -1, jkIdx = -1, waliIdx = -1;
 
-                            // Auto-detect headers from first few rows
+                            // Auto-detect headers
                             for (let r = 0; r < Math.min(json.length, 10); r++) {
                                 const row = json[r];
                                 if (!row) continue;
                                 for (let c = 0; c < row.length; c++) {
                                     const cellStr = String(row[c] || '').toLowerCase().trim();
                                     if (cellStr.includes('nis')) nisIdx = c;
-                                    if (cellStr.includes('nama')) namaIdx = c;
-                                    if (cellStr.includes('kelas')) kelasIdx = c;
+                                    if (cellStr.includes('nama') && !cellStr.includes('kelas')) namaIdx = c;
+                                    if (cellStr.includes('kelas') && !cellStr.includes('wali')) kelasIdx = c;
                                     if (cellStr.includes('jk') || cellStr.includes('jenis kelamin') || cellStr.includes('l/p')) jkIdx = c;
+                                    if (cellStr.includes('wali')) waliIdx = c;
                                 }
-                                if (namaIdx !== -1) break; // found header row
+                                if (namaIdx !== -1) break;
                             }
 
-                            // If no explicit header, assume columns: 0=NIS/No, 1=Nama, 2=Kelas, 3=JK
+                            // Fallback jika header tidak terdeteksi
                             if (namaIdx === -1) {
-                                nisIdx = 0; namaIdx = 1; kelasIdx = 2; jkIdx = 3;
+                                nisIdx = 0; namaIdx = 1; kelasIdx = 2; jkIdx = 3; waliIdx = 4;
                             }
 
-                            json.forEach((row, rIdx) => {
-                                if (rIdx === 0 && namaIdx !== -1) return; // Skip header
+                            json.forEach((row) => {
                                 const nama = row[namaIdx] ? String(row[namaIdx]).trim() : '';
-                                if (!nama || nama.toLowerCase().includes('nama')) return;
+                                if (!nama || nama.toLowerCase().includes('nama') || nama.toLowerCase().includes('daftar hadir') || nama.toLowerCase().includes('mengetahui') || nama.toLowerCase().includes('nip')) return;
 
-                                const nis = row[nisIdx] ? String(row[nisIdx]).trim() : 'N' + Math.floor(Math.random() * 8999 + 1000);
-                                const kelas = row[kelasIdx] ? String(row[kelasIdx]).trim() : (sheetName.length < 15 ? sheetName : 'X Pancasila');
+                                const nis = (row[nisIdx] && String(row[nisIdx]).trim().match(/\d+/)) ? String(row[nisIdx]).trim() : 'N' + Math.floor(Math.random() * 8999 + 1000);
+                                let kelas = row[kelasIdx] ? String(row[kelasIdx]).trim() : (sheetName.length < 25 ? sheetName : 'XII Usaha Layanan Pariwisata');
                                 const jk = row[jkIdx] ? String(row[jkIdx]).trim().toUpperCase().charAt(0) : 'L';
+                                const wali = row[waliIdx] ? String(row[waliIdx]).trim() : 'Marjiranto, S.E., M.Pd.';
 
-                                // Auto add unique class
-                                if (kelas && !STATE.data.Kelas.some(k => k.nama === kelas)) {
+                                // 1. Otomatis buat/tambahkan ke Master Data KELAS
+                                if (kelas && !STATE.data.Kelas.some(k => k.nama.toLowerCase() === kelas.toLowerCase() && k.mapelGroup === currentActiveMode)) {
                                     STATE.data.Kelas.push({
                                         id: 'K' + (STATE.data.Kelas.length + 1),
                                         nama: kelas,
-                                        wali: STATE.currentUser ? STATE.currentUser.nama : 'Heri Cahyono, S.Pd.'
+                                        wali: wali,
+                                        mapelGroup: currentActiveMode
                                     });
                                     importedClassesCount++;
                                 }
 
-                                // Avoid duplicate NIS/Nama in same class
-                                if (!STATE.data.Murid.some(m => m.nama.toLowerCase() === nama.toLowerCase() && m.kelas === kelas)) {
+                                // 2. Otomatis buat/tambahkan ke Master Data MURID
+                                if (!STATE.data.Murid.some(m => m.nama.toLowerCase() === nama.toLowerCase() && m.kelas.toLowerCase() === kelas.toLowerCase() && m.mapelGroup === currentActiveMode)) {
                                     STATE.data.Murid.push({
                                         nis: nis,
                                         nama: nama,
                                         kelas: kelas,
-                                        jk: jk === 'P' ? 'P' : 'L'
+                                        jk: jk === 'P' ? 'P' : 'L',
+                                        mapelGroup: currentActiveMode
                                     });
                                     importedStudentsCount++;
                                 }
@@ -1745,7 +1834,7 @@
                     renderMasterTable();
                     switchMasterTab('murid');
                     
-                    showToast(`Berhasil mengimpor ${importedStudentsCount} Murid & ${importedClassesCount} Kelas dari Excel!`, 'success');
+                    showToast(`Berhasil mengimpor ${importedStudentsCount} Murid & ${importedClassesCount} Kelas untuk ${currentActiveMode}!`, 'success');
                 } catch (err) {
                     hideLoading();
                     console.error(err);
@@ -1754,7 +1843,21 @@
             };
 
             reader.readAsArrayBuffer(file);
-            event.target.value = ''; // reset input
+            event.target.value = '';
+        }
+
+        function downloadExcelTemplate() {
+            const templateData = [
+                { "NIS": "1001", "Nama Murid": "Ahmad Dahlan", "Kelas": "XII ULP 1", "L/P": "L", "Wali Kelas": "Marjiranto, S.E., M.Pd." },
+                { "NIS": "1002", "Nama Murid": "Siti Nurhaliza", "Kelas": "XII ULP 1", "L/P": "P", "Wali Kelas": "Marjiranto, S.E., M.Pd." },
+                { "NIS": "1003", "Nama Murid": "Budi Santoso", "Kelas": "XII ULP 2", "L/P": "L", "Wali Kelas": "Siti Aminah, S.Pd." }
+            ];
+
+            const ws = XLSX.utils.json_to_sheet(templateData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Template_Master");
+            XLSX.writeFile(wb, "Template_Import_Master_GuruSmart.xlsx");
+            showToast('Template Excel berhasil diunduh!', 'success');
         }
 
         function filterMasterTable() {
@@ -1770,33 +1873,37 @@
             const title = document.getElementById('modal-master-title');
             const fields = document.getElementById('modal-master-fields');
             const tab = STATE.activeMasterTab;
+            const currentActiveMode = getActiveMode();
 
             if (tab === 'guru') {
                 title.textContent = 'Tambah Guru Baru';
                 fields.innerHTML = `
-                    <div><label class="block text-xs font-semibold mb-1">Nama Lengkap Guru</label><input type="text" id="m_nama" required class="w-full p-2.5 rounded-xl border text-sm"></div>
-                    <div><label class="block text-xs font-semibold mb-1">Username</label><input type="text" id="m_username" required class="w-full p-2.5 rounded-xl border text-sm"></div>
-                    <div><label class="block text-xs font-semibold mb-1">Password</label><input type="password" id="m_password" required class="w-full p-2.5 rounded-xl border text-sm"></div>
-                    <div><label class="block text-xs font-semibold mb-1">Mata Pelajaran</label><input type="text" id="m_mapel" required class="w-full p-2.5 rounded-xl border text-sm"></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Nama Lengkap Guru</label><input type="text" id="m_nama" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Username</label><input type="text" id="m_username" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Password</label><input type="password" id="m_password" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Mata Pelajaran</label><input type="text" id="m_mapel" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"></div>
                 `;
             } else if (tab === 'murid') {
                 title.textContent = 'Tambah Murid Baru';
                 fields.innerHTML = `
-                    <div><label class="block text-xs font-semibold mb-1">NIS</label><input type="text" id="m_nis" required class="w-full p-2.5 rounded-xl border text-sm"></div>
-                    <div><label class="block text-xs font-semibold mb-1">Nama Murid</label><input type="text" id="m_nama" required class="w-full p-2.5 rounded-xl border text-sm"></div>
-                    <div><label class="block text-xs font-semibold mb-1">Kelas</label><input type="text" id="m_kelas" required class="w-full p-2.5 rounded-xl border text-sm"></div>
-                    <div><label class="block text-xs font-semibold mb-1">Jenis Kelamin (L/P)</label><select id="m_jk" class="w-full p-2.5 rounded-xl border text-sm"><option value="L">Laki-laki (L)</option><option value="P">Perempuan (P)</option></select></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">NIS</label><input type="text" id="m_nis" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Nama Murid</label><input type="text" id="m_nama" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Kelas</label><input type="text" id="m_kelas" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Jenis Kelamin (L/P)</label><select id="m_jk" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"><option value="L">Laki-laki (L)</option><option value="P">Perempuan (P)</option></select></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Mode Mata Pelajaran</label><select id="m_mapelGroup" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"><option value="Pendidikan Pancasila" ${currentActiveMode === 'Pendidikan Pancasila' ? 'selected' : ''}>Pendidikan Pancasila</option><option value="Informatika & KKA" ${currentActiveMode === 'Informatika & KKA' ? 'selected' : ''}>Informatika & KKA</option><option value="Semua">Semua Mode</option></select></div>
                 `;
             } else if (tab === 'kelas') {
                 title.textContent = 'Tambah Kelas Baru';
                 fields.innerHTML = `
-                    <div><label class="block text-xs font-semibold mb-1">Nama Kelas</label><input type="text" id="m_nama" required class="w-full p-2.5 rounded-xl border text-sm"></div>
-                    <div><label class="block text-xs font-semibold mb-1">Wali Kelas</label><input type="text" id="m_wali" required class="w-full p-2.5 rounded-xl border text-sm"></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Nama Kelas</label><input type="text" id="m_nama" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Wali Kelas</label><input type="text" id="m_wali" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Mode Mata Pelajaran</label><select id="m_mapelGroup" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"><option value="Pendidikan Pancasila" ${currentActiveMode === 'Pendidikan Pancasila' ? 'selected' : ''}>Pendidikan Pancasila</option><option value="Informatika & KKA" ${currentActiveMode === 'Informatika & KKA' ? 'selected' : ''}>Informatika & KKA</option><option value="Semua">Semua Mode</option></select></div>
                 `;
             } else if (tab === 'mapel') {
                 title.textContent = 'Tambah Mata Pelajaran';
                 fields.innerHTML = `
-                    <div><label class="block text-xs font-semibold mb-1">Nama Mata Pelajaran</label><input type="text" id="m_nama" required class="w-full p-2.5 rounded-xl border text-sm"></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Nama Mata Pelajaran</label><input type="text" id="m_nama" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"></div>
+                    <div><label class="block text-xs font-semibold mb-1 dark:text-slate-200">Mode Mata Pelajaran</label><select id="m_mapelGroup" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm"><option value="Pendidikan Pancasila" ${currentActiveMode === 'Pendidikan Pancasila' ? 'selected' : ''}>Pendidikan Pancasila</option><option value="Informatika & KKA" ${currentActiveMode === 'Informatika & KKA' ? 'selected' : ''}>Informatika & KKA</option><option value="Semua">Semua Mode</option></select></div>
                 `;
             }
 
@@ -1804,27 +1911,32 @@
         }
 
         function editMasterItem(entity, idx) {
-            STATE.editingIndex = idx;
             openAddMasterModal();
+            STATE.editingIndex = idx;
             const title = document.getElementById('modal-master-title');
             title.textContent = `Edit Data ${entity}`;
 
             const item = STATE.data[entity][idx];
+            if (!item) return;
+
             if (entity === 'Guru') {
-                document.getElementById('m_nama').value = item.nama;
-                document.getElementById('m_username').value = item.username;
-                document.getElementById('m_password').value = item.password || '';
-                document.getElementById('m_mapel').value = item.mapel;
+                if (document.getElementById('m_nama')) document.getElementById('m_nama').value = item.nama || '';
+                if (document.getElementById('m_username')) document.getElementById('m_username').value = item.username || '';
+                if (document.getElementById('m_password')) document.getElementById('m_password').value = item.password || '';
+                if (document.getElementById('m_mapel')) document.getElementById('m_mapel').value = item.mapel || '';
             } else if (entity === 'Murid') {
-                document.getElementById('m_nis').value = item.nis;
-                document.getElementById('m_nama').value = item.nama;
-                document.getElementById('m_kelas').value = item.kelas;
-                document.getElementById('m_jk').value = item.jk;
+                if (document.getElementById('m_nis')) document.getElementById('m_nis').value = item.nis || '';
+                if (document.getElementById('m_nama')) document.getElementById('m_nama').value = item.nama || '';
+                if (document.getElementById('m_kelas')) document.getElementById('m_kelas').value = item.kelas || '';
+                if (document.getElementById('m_jk')) document.getElementById('m_jk').value = item.jk || 'L';
+                if (document.getElementById('m_mapelGroup')) document.getElementById('m_mapelGroup').value = item.mapelGroup || getActiveMode();
             } else if (entity === 'Kelas') {
-                document.getElementById('m_nama').value = item.nama;
-                document.getElementById('m_wali').value = item.wali;
+                if (document.getElementById('m_nama')) document.getElementById('m_nama').value = item.nama || '';
+                if (document.getElementById('m_wali')) document.getElementById('m_wali').value = item.wali || '';
+                if (document.getElementById('m_mapelGroup')) document.getElementById('m_mapelGroup').value = item.mapelGroup || getActiveMode();
             } else if (entity === 'Mapel') {
-                document.getElementById('m_nama').value = item.nama;
+                if (document.getElementById('m_nama')) document.getElementById('m_nama').value = item.nama || '';
+                if (document.getElementById('m_mapelGroup')) document.getElementById('m_mapelGroup').value = item.mapelGroup || getActiveMode();
             }
         }
 
@@ -1851,18 +1963,21 @@
                     nis: document.getElementById('m_nis').value,
                     nama: document.getElementById('m_nama').value,
                     kelas: document.getElementById('m_kelas').value,
-                    jk: document.getElementById('m_jk').value
+                    jk: document.getElementById('m_jk').value,
+                    mapelGroup: document.getElementById('m_mapelGroup').value
                 };
             } else if (tab === 'kelas') {
                 newItem = {
                     id: 'K' + Date.now().toString().slice(-4),
                     nama: document.getElementById('m_nama').value,
-                    wali: document.getElementById('m_wali').value
+                    wali: document.getElementById('m_wali').value,
+                    mapelGroup: document.getElementById('m_mapelGroup').value
                 };
             } else if (tab === 'mapel') {
                 newItem = {
                     id: 'M' + Date.now().toString().slice(-4),
-                    nama: document.getElementById('m_nama').value
+                    nama: document.getElementById('m_nama').value,
+                    mapelGroup: document.getElementById('m_mapelGroup').value
                 };
             }
 
@@ -1880,13 +1995,36 @@
         }
 
         function deleteMasterItem(entity, idx) {
-            if (confirm(`Apakah Anda yakin ingin menghapus data ini?`)) {
+            STATE.deletePending = { entity, idx };
+            const item = STATE.data[entity][idx];
+            const name = item ? (item.nama || item.namaMurid || item.username || '') : '';
+            const textEl = document.getElementById('delete-confirm-text');
+            if (textEl) {
+                textEl.textContent = name 
+                    ? `Apakah Anda yakin ingin menghapus data ${entity} "${name}"?` 
+                    : `Apakah Anda yakin ingin menghapus data ${entity} ini?`;
+            }
+            document.getElementById('modal-confirm-delete').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            STATE.deletePending = { entity: null, idx: null };
+            document.getElementById('modal-confirm-delete').classList.add('hidden');
+        }
+
+        function confirmExecuteDelete() {
+            const { entity, idx } = STATE.deletePending;
+            if (entity && idx !== null && idx >= 0 && STATE.data[entity] && STATE.data[entity][idx]) {
+                const deletedItem = STATE.data[entity][idx];
+                const deletedName = deletedItem.nama || deletedItem.namaMurid || entity;
+                
                 STATE.data[entity].splice(idx, 1);
                 saveLocalDb();
                 populateSelects();
                 renderMasterTable();
-                showToast(`Data ${entity} berhasil dihapus`, 'info');
+                showToast(`Data "${deletedName}" berhasil dihapus`, 'info');
             }
+            closeDeleteModal();
         }
 
         function closeMasterModal() {
