@@ -1509,18 +1509,26 @@
             if (tabId === 'master') renderMasterTable();
             if (tabId === 'laporan') renderLaporanTable();
 
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
-                toggleSidebar();
+            if (window.innerWidth < 768) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebar-overlay');
+                if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.add('-translate-x-full');
+                    if (overlay) overlay.classList.add('hidden');
+                }
             }
         }
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
-            if (sidebar && overlay) {
+            if (!sidebar) return;
+
+            if (window.innerWidth >= 768) {
+                sidebar.classList.toggle('md:hidden');
+            } else {
                 sidebar.classList.toggle('-translate-x-full');
-                overlay.classList.toggle('hidden');
+                if (overlay) overlay.classList.toggle('hidden');
             }
         }
 
