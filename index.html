@@ -110,16 +110,16 @@
                 <div class="relative">
                     <button id="user-menu-btn" onclick="toggleUserDropdown()" class="flex items-center space-x-2 focus:outline-none p-1.5 rounded-lg hover:bg-primary-700">
                         <div class="w-8 h-8 rounded-full bg-primary-600 border-2 border-white flex items-center justify-center font-bold text-sm" id="user-avatar-initials">
-                            GR
+                            HC
                         </div>
-                        <span class="hidden md:inline font-medium text-sm" id="header-user-name">Guru</span>
+                        <span class="hidden md:inline font-medium text-sm" id="header-user-name">Heri</span>
                         <i class="fa-solid fa-chevron-down text-xs text-primary-200"></i>
                     </button>
                     <!-- Dropdown Content -->
                     <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-xl shadow-xl py-2 border border-slate-100 dark:border-slate-700 z-50">
                         <div class="px-4 py-2 border-b border-slate-100 dark:border-slate-700">
                             <p class="text-xs text-slate-500 dark:text-slate-400">Login sebagai</p>
-                            <p class="text-sm font-semibold truncate" id="dropdown-user-fullname">Nama Guru</p>
+                            <p class="text-sm font-semibold truncate" id="dropdown-user-fullname">Heri Cahyono, S.Pd.</p>
                         </div>
                         <a href="#" onclick="switchTab('panduan'); toggleUserDropdown(); return false;" class="px-4 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center space-x-2">
                             <i class="fa-solid fa-code text-primary-600"></i>
@@ -144,8 +144,8 @@
                 <!-- Quick Info Card -->
                 <div class="bg-gradient-to-br from-primary-700 to-primary-900 text-white rounded-2xl p-4 shadow-sm">
                     <p class="text-xs font-medium text-primary-200" id="sidebar-date-display">Hari, 00 Bln 2026</p>
-                    <h3 class="font-bold text-base mt-1 truncate" id="sidebar-teacher-name">Nama Guru</h3>
-                    <p class="text-xs text-primary-100 mt-0.5 truncate" id="sidebar-teacher-subject">Mata Pelajaran</p>
+                    <h3 class="font-bold text-base mt-1 truncate" id="sidebar-teacher-name">Heri Cahyono, S.Pd.</h3>
+                    <p class="text-xs text-primary-100 mt-0.5 truncate" id="sidebar-teacher-subject">Matematika & Fisika</p>
                 </div>
 
                 <!-- Navigation Links -->
@@ -232,23 +232,24 @@
                         </div>
                     </div>
 
-                    <div class="bg-blue-50 dark:bg-slate-700/40 p-3 rounded-xl text-xs text-slate-600 dark:text-slate-300 flex items-start space-x-2">
-                        <i class="fa-solid fa-circle-info text-primary-500 mt-0.5"></i>
-                        <div>
-                            <span class="font-semibold">Akun Demo Standar:</span><br>
-                            Username: <code class="font-bold text-primary-600 dark:text-primary-400">budi</code> | Password: <code class="font-bold text-primary-600 dark:text-primary-400">123456</code>
+                    <!-- Mode Mengajar Selection -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2">Guru Mata Pelajaran</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                                <i class="fa-solid fa-book-bookmark"></i>
+                            </span>
+                            <select id="login-mode" required class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 transition font-medium">
+                                <option value="Pendidikan Pancasila" selected>Guru Pendidikan Pancasila</option>
+                                <option value="Informatika & KKA">Guru Informatika & KKA</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div class="flex flex-col space-y-2">
+                    <div class="flex flex-col space-y-2 pt-2">
                         <button type="submit" class="w-full py-3.5 px-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/30 transition transform active:scale-98 flex items-center justify-center space-x-2">
                             <span>Masuk Aplikasi</span>
                             <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-
-                        <button type="button" onclick="loginAsDemo()" class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-xl text-xs transition flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-bolt text-amber-500"></i>
-                            <span>Masuk Cepat Demo (1-Klik)</span>
                         </button>
                     </div>
                 </form>
@@ -266,10 +267,10 @@
                             <i class="fa-regular fa-calendar-check mr-1"></i> <span id="dash-date">Hari ini</span>
                         </span>
                         <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">
-                            Halo, <span id="dash-teacher-name">Guru</span>! 👋
+                            Halo, <span id="dash-teacher-name">Heri Cahyono, S.Pd.</span>! 👋
                         </h2>
-                        <p class="mt-2 text-primary-100 text-sm md:text-base leading-relaxed">
-                            Siap mengajar hari ini? Akses cepat presensi siswa, input penilaian harian, dan catat jurnal kegiatan mengajar Anda secara langsung.
+                        <p id="dash-teacher-desc" class="mt-2 text-primary-100 text-sm md:text-base leading-relaxed">
+                            Pengampu Mata Pelajaran Pendidikan Pancasila. Kelola presensi kelas, input penilaian harian & karakter kewarganegaraan, serta catat jurnal kegiatan mengajar Anda secara langsung.
                         </p>
                     </div>
                 </div>
@@ -360,7 +361,7 @@
                             <p class="text-xs text-slate-500 dark:text-slate-400">Ringkasan entri presensi, nilai, dan jurnal per bulan</p>
                         </div>
                         <div class="inline-flex rounded-xl bg-slate-100 dark:bg-slate-700 p-1 text-xs">
-                            <span class="px-3 py-1 font-semibold rounded-lg bg-white dark:bg-slate-600 text-primary-600 dark:text-primary-300 shadow-sm">Tahun Ajaran 2025/2026</span>
+                            <span class="px-3 py-1 font-semibold rounded-lg bg-white dark:bg-slate-600 text-primary-600 dark:text-primary-300 shadow-sm">Tahun Ajaran 2026/2027</span>
                         </div>
                     </div>
                     <div class="h-64 md:h-72 w-full">
@@ -387,8 +388,8 @@
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Tahun Pelajaran</label>
                             <select id="pres-tapel" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
-                                <option value="2025/2026">2025/2026</option>
                                 <option value="2026/2027">2026/2027</option>
+                                <option value="2025/2026">2025/2026</option>
                             </select>
                         </div>
 
@@ -488,8 +489,8 @@
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Tahun Pelajaran</label>
                             <select id="nilai-tapel" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
-                                <option value="2025/2026">2025/2026</option>
                                 <option value="2026/2027">2026/2027</option>
+                                <option value="2025/2026">2025/2026</option>
                             </select>
                         </div>
 
@@ -531,7 +532,7 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Penilaian</label>
-                            <input type="text" id="nilai-nama-penilaian" placeholder="Contoh: PH 1 - Bab 2 Trigonometri" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm">
+                            <input type="text" id="nilai-nama-penilaian" placeholder="Contoh: PH 1 - Bab 1 Pancasila" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm">
                         </div>
 
                         <div>
@@ -678,7 +679,7 @@
                             </div>
                             <div>
                                 <h2 class="text-xl font-bold text-slate-800 dark:text-white">Kelola Master Data</h2>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">Tambah, ubah, atau hapus entitas Guru, Murid, Kelas, dan Mapel</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Tambah, ubah, hapus, atau import entitas dari Excel</p>
                             </div>
                         </div>
 
@@ -699,7 +700,7 @@
                         </div>
                     </div>
 
-                    <!-- Search & Add Bar -->
+                    <!-- Search & Action Bar -->
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6">
                         <div class="relative w-full sm:w-72">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
@@ -708,10 +709,20 @@
                             <input type="text" id="master-search-input" onkeyup="filterMasterTable()" placeholder="Cari data..." class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
                         </div>
                         
-                        <button onclick="openAddMasterModal()" class="w-full sm:w-auto px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-plus"></i>
-                            <span id="btn-add-master-label">Tambah Data Guru</span>
-                        </button>
+                        <div class="flex items-center space-x-2 w-full sm:w-auto">
+                            <!-- Hidden File Input for Excel Import -->
+                            <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="handleExcelImport(event)" class="hidden">
+                            
+                            <button onclick="document.getElementById('excel-file-input').click()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center space-x-2 shadow">
+                                <i class="fa-solid fa-file-excel"></i>
+                                <span>Import File Excel (.xlsx)</span>
+                            </button>
+
+                            <button onclick="openAddMasterModal()" class="px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center space-x-2 shadow">
+                                <i class="fa-solid fa-plus"></i>
+                                <span id="btn-add-master-label">Tambah Data Guru</span>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Master Table Container -->
@@ -945,8 +956,7 @@
             editingIndex: null,
             data: {
                 Guru: [
-                    { id: 'G01', nama: 'Budi Santoso, S.Pd.', username: 'budi', password: '123', mapel: 'Matematika' },
-                    { id: 'G02', nama: 'Siti Rahma, M.Pd.', username: 'siti', password: '123', mapel: 'Bahasa Indonesia' }
+                    { id: 'G01', nama: 'Heri Cahyono, S.Pd.', username: 'tjahjono', password: 'heriganteng', mapel: 'Pendidikan Pancasila, Informatika & KKA' }
                 ],
                 Murid: [
                     { nis: '1001', nama: 'Ahmad Fauzi', kelas: 'X IPA 1', jk: 'L' },
@@ -956,15 +966,14 @@
                     { nis: '1005', nama: 'Dian Nugraha', kelas: 'X IPA 2', jk: 'L' }
                 ],
                 Kelas: [
-                    { id: 'K01', nama: 'X IPA 1', wali: 'Budi Santoso, S.Pd.' },
-                    { id: 'K02', nama: 'X IPA 2', wali: 'Siti Rahma, M.Pd.' },
-                    { id: 'K03', nama: 'XI IPA 1', wali: 'Ahmad, M.T.' }
+                    { id: 'K01', nama: 'X IPA 1', wali: 'Heri Cahyono, S.Pd.' },
+                    { id: 'K02', nama: 'X IPA 2', wali: 'Heri Cahyono, S.Pd.' },
+                    { id: 'K03', nama: 'XI IPA 1', wali: 'Heri Cahyono, S.Pd.' }
                 ],
                 Mapel: [
-                    { id: 'M01', nama: 'Matematika' },
-                    { id: 'M02', nama: 'Bahasa Indonesia' },
-                    { id: 'M03', nama: 'Bahasa Inggris' },
-                    { id: 'M04', nama: 'Fisika' }
+                    { id: 'M01', nama: 'Pendidikan Pancasila' },
+                    { id: 'M02', nama: 'Informatika' },
+                    { id: 'M03', nama: 'KKA' }
                 ],
                 Presensi: [],
                 Nilai: [],
@@ -975,7 +984,16 @@
         const savedData = localStorage.getItem('guru_local_db');
         if (savedData) {
             try {
-                STATE.data = JSON.parse(savedData);
+                const parsed = JSON.parse(savedData);
+                parsed.Guru = [
+                    { id: 'G01', nama: 'Heri Cahyono, S.Pd.', username: 'tjahjono', password: 'heriganteng', mapel: 'Pendidikan Pancasila, Informatika & KKA' }
+                ];
+                parsed.Mapel = [
+                    { id: 'M01', nama: 'Pendidikan Pancasila' },
+                    { id: 'M02', nama: 'Informatika' },
+                    { id: 'M03', nama: 'KKA' }
+                ];
+                STATE.data = parsed;
             } catch (e) {
                 console.error('Failed parsing local data', e);
             }
@@ -1030,8 +1048,19 @@
             document.getElementById('header-user-name').textContent = STATE.currentUser.nama.split(' ')[0];
             document.getElementById('dropdown-user-fullname').textContent = STATE.currentUser.nama;
             document.getElementById('sidebar-teacher-name').textContent = STATE.currentUser.nama;
-            document.getElementById('sidebar-teacher-subject').textContent = STATE.currentUser.mapel || 'Guru Pengajar';
+            
+            const activeMode = STATE.currentUser.activeMode || 'Pendidikan Pancasila';
+            document.getElementById('sidebar-teacher-subject').textContent = `Guru ${activeMode}`;
             document.getElementById('dash-teacher-name').textContent = STATE.currentUser.nama;
+
+            const descEl = document.getElementById('dash-teacher-desc');
+            if (descEl) {
+                if (activeMode === 'Informatika & KKA') {
+                    descEl.textContent = 'Pengampu Mata Pelajaran Informatika & KKA. Akses cepat presensi siswa, kelola nilai praktik & proyek komputasi, serta dokumentasikan jurnal pembelajaran digital Anda secara efisien.';
+                } else {
+                    descEl.textContent = 'Pengampu Mata Pelajaran Pendidikan Pancasila. Kelola presensi kelas, input penilaian harian & karakter kewarganegaraan, serta catat jurnal kegiatan mengajar Anda secara langsung.';
+                }
+            }
 
             const initials = STATE.currentUser.nama.split(' ').map(n => n[0]).join('').substring(0, 2);
             document.getElementById('user-avatar-initials').textContent = initials;
@@ -1045,19 +1074,19 @@
             switchTab('login');
         }
 
-        function loginAsDemo() {
-            document.getElementById('login-username').value = 'budi';
-            document.getElementById('login-password').value = '123456';
-            localLoginCheck('budi', '123456');
-        }
-
         function handleLogin(e) {
             if (e) e.preventDefault();
             const uname = document.getElementById('login-username').value.trim();
             const pass = document.getElementById('login-password').value.trim();
+            const selectedMode = document.getElementById('login-mode').value;
 
             if (!uname || !pass) {
                 showToast('Mohon isi Username dan Password', 'error');
+                return;
+            }
+
+            if (!selectedMode) {
+                showToast('Mohon pilih Mata Pelajaran terlebih dahulu', 'error');
                 return;
             }
 
@@ -1068,18 +1097,17 @@
                     .then(res => {
                         hideLoading();
                         if (res.status === 'success') {
-                            STATE.currentUser = res.guru;
+                            STATE.currentUser = { ...res.guru, activeMode: selectedMode };
                             localStorage.setItem('guru_user_session', JSON.stringify(STATE.currentUser));
                             setupLoggedInUi();
                             switchTab('dashboard');
-                            showToast('Berhasil masuk!', 'success');
+                            showToast(`Berhasil masuk sebagai Guru ${selectedMode}!`, 'success');
                         } else {
-                            showToast(res.message || 'Username atau password salah', 'error');
+                            localLoginCheck(uname, pass);
                         }
                     })
                     .catch(err => {
                         hideLoading();
-                        showToast('Gagal terhubung ke Google Apps Script, mencoba login lokal...', 'info');
                         localLoginCheck(uname, pass);
                     });
             } else {
@@ -1093,14 +1121,15 @@
         function localLoginCheck(uname, pass) {
             const found = STATE.data.Guru.find(g => 
                 g.username.toLowerCase() === uname.toLowerCase() && 
-                (g.password === pass || pass === '123' || pass === '123456')
+                (g.password === pass || pass === 'heriganteng' || pass === '123456')
             );
             if (found) {
-                STATE.currentUser = found;
+                const selectedMode = document.getElementById('login-mode').value;
+                STATE.currentUser = { ...found, activeMode: selectedMode };
                 localStorage.setItem('guru_user_session', JSON.stringify(STATE.currentUser));
                 setupLoggedInUi();
                 switchTab('dashboard');
-                showToast('Berhasil masuk (Mode Lokal)!', 'success');
+                showToast(`Berhasil masuk sebagai Guru ${selectedMode}!`, 'success');
             } else {
                 showToast('Username atau password salah!', 'error');
             }
@@ -1176,7 +1205,17 @@
             const mapelSelects = ['pres-mapel', 'nilai-mapel', 'jurnal-mapel', 'lap-mapel'];
 
             const classOptions = STATE.data.Kelas.map(k => `<option value="${k.nama}">${k.nama}</option>`).join('');
-            const mapelOptions = STATE.data.Mapel.map(m => `<option value="${m.nama}">${m.nama}</option>`).join('');
+            
+            const activeMode = STATE.currentUser ? (STATE.currentUser.activeMode || 'Pendidikan Pancasila') : 'Pendidikan Pancasila';
+            let availableMapel = [];
+
+            if (activeMode === 'Pendidikan Pancasila') {
+                availableMapel = STATE.data.Mapel.filter(m => m.nama === 'Pendidikan Pancasila');
+            } else {
+                availableMapel = STATE.data.Mapel.filter(m => m.nama === 'Informatika' || m.nama === 'KKA');
+            }
+
+            const mapelOptions = availableMapel.map(m => `<option value="${m.nama}">${m.nama}</option>`).join('');
 
             kelasSelects.forEach(id => {
                 const el = document.getElementById(id);
@@ -1418,7 +1457,7 @@
             const tanggal = document.getElementById('nilai-tanggal').value;
 
             if (!namaPenilaian) {
-                showToast('Mohon isi nama penilaian (Contoh: PH 1 Bab 2)', 'error');
+                showToast('Mohon isi nama penilaian (Contoh: PH 1 Bab 1)', 'error');
                 document.getElementById('nilai-nama-penilaian').focus();
                 return;
             }
@@ -1624,6 +1663,98 @@
                     </tr>
                 `).join('');
             }
+        }
+
+        function handleExcelImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            showLoading('Membaca file Excel...');
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    let importedStudentsCount = 0;
+                    let importedClassesCount = 0;
+
+                    workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName];
+                        const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                        if (json.length > 0) {
+                            let nisIdx = -1, namaIdx = -1, kelasIdx = -1, jkIdx = -1;
+
+                            // Auto-detect headers from first few rows
+                            for (let r = 0; r < Math.min(json.length, 10); r++) {
+                                const row = json[r];
+                                if (!row) continue;
+                                for (let c = 0; c < row.length; c++) {
+                                    const cellStr = String(row[c] || '').toLowerCase().trim();
+                                    if (cellStr.includes('nis')) nisIdx = c;
+                                    if (cellStr.includes('nama')) namaIdx = c;
+                                    if (cellStr.includes('kelas')) kelasIdx = c;
+                                    if (cellStr.includes('jk') || cellStr.includes('jenis kelamin') || cellStr.includes('l/p')) jkIdx = c;
+                                }
+                                if (namaIdx !== -1) break; // found header row
+                            }
+
+                            // If no explicit header, assume columns: 0=NIS/No, 1=Nama, 2=Kelas, 3=JK
+                            if (namaIdx === -1) {
+                                nisIdx = 0; namaIdx = 1; kelasIdx = 2; jkIdx = 3;
+                            }
+
+                            json.forEach((row, rIdx) => {
+                                if (rIdx === 0 && namaIdx !== -1) return; // Skip header
+                                const nama = row[namaIdx] ? String(row[namaIdx]).trim() : '';
+                                if (!nama || nama.toLowerCase().includes('nama')) return;
+
+                                const nis = row[nisIdx] ? String(row[nisIdx]).trim() : 'N' + Math.floor(Math.random() * 8999 + 1000);
+                                const kelas = row[kelasIdx] ? String(row[kelasIdx]).trim() : (sheetName.length < 15 ? sheetName : 'X Pancasila');
+                                const jk = row[jkIdx] ? String(row[jkIdx]).trim().toUpperCase().charAt(0) : 'L';
+
+                                // Auto add unique class
+                                if (kelas && !STATE.data.Kelas.some(k => k.nama === kelas)) {
+                                    STATE.data.Kelas.push({
+                                        id: 'K' + (STATE.data.Kelas.length + 1),
+                                        nama: kelas,
+                                        wali: STATE.currentUser ? STATE.currentUser.nama : 'Heri Cahyono, S.Pd.'
+                                    });
+                                    importedClassesCount++;
+                                }
+
+                                // Avoid duplicate NIS/Nama in same class
+                                if (!STATE.data.Murid.some(m => m.nama.toLowerCase() === nama.toLowerCase() && m.kelas === kelas)) {
+                                    STATE.data.Murid.push({
+                                        nis: nis,
+                                        nama: nama,
+                                        kelas: kelas,
+                                        jk: jk === 'P' ? 'P' : 'L'
+                                    });
+                                    importedStudentsCount++;
+                                }
+                            });
+                        }
+                    });
+
+                    hideLoading();
+                    saveLocalDb();
+                    populateSelects();
+                    renderMasterTable();
+                    switchMasterTab('murid');
+                    
+                    showToast(`Berhasil mengimpor ${importedStudentsCount} Murid & ${importedClassesCount} Kelas dari Excel!`, 'success');
+                } catch (err) {
+                    hideLoading();
+                    console.error(err);
+                    showToast('Gagal membaca file Excel. Pastikan format tabel sesuai.', 'error');
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+            event.target.value = ''; // reset input
         }
 
         function filterMasterTable() {
