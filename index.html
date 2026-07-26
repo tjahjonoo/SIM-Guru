@@ -140,12 +140,11 @@
 
     <div id="app-shell" class="flex-1 flex overflow-hidden">
         
-        <!-- Sidebar Navigation -->
         <aside id="sidebar" class="hidden fixed md:relative inset-y-0 left-0 z-20 w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col transition-all duration-300 transform -translate-x-full md:translate-x-0 shadow-lg md:shadow-none">
             <div class="p-4 flex-1 overflow-y-auto space-y-6">
                 <!-- Quick Info Card -->
                 <div class="bg-gradient-to-br from-primary-700 to-primary-900 text-white rounded-2xl p-4 shadow-sm">
-                    <p class="text-xs font-medium text-primary-200" id="sidebar-date-display">Hari, 00 Bln 2026</p>
+                    <p class="text-xs font-medium text-primary-200" id="sidebar-date-display">Selamat Datang</p>
                     <h3 class="font-bold text-base mt-1 truncate" id="sidebar-teacher-name">Heri Cahyono, S.Pd.</h3>
                     <p class="text-xs text-primary-100 mt-0.5 truncate" id="sidebar-teacher-subject">Pendidikan Pancasila</p>
                 </div>
@@ -853,82 +852,66 @@
             </section>
 
             <section id="view-master" class="hidden space-y-6">
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-700">
                         <div class="flex items-center space-x-3">
                             <div class="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl">
                                 <i class="fa-solid fa-database"></i>
                             </div>
                             <div>
                                 <h2 class="text-xl font-bold text-slate-800 dark:text-white">Kelola Master Data</h2>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">Tambah, ubah, hapus, atau import entitas dari Excel</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Atur Master Data Guru, Murid, Kelas, dan Mata Pelajaran</p>
                             </div>
                         </div>
 
-                        <!-- Sub Tab Buttons -->
-                        <div class="inline-flex rounded-2xl bg-slate-100 dark:bg-slate-700 p-1 text-xs">
-                            <button onclick="switchMasterTab('guru')" id="btn-master-guru" class="px-3.5 py-2 rounded-xl font-semibold bg-white dark:bg-slate-600 text-primary-600 dark:text-white shadow-sm transition">
-                                Guru
-                            </button>
-                            <button onclick="switchMasterTab('murid')" id="btn-master-murid" class="px-3.5 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition">
-                                Murid
-                            </button>
-                            <button onclick="switchMasterTab('kelas')" id="btn-master-kelas" class="px-3.5 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition">
-                                Kelas
-                            </button>
-                            <button onclick="switchMasterTab('mapel')" id="btn-master-mapel" class="px-3.5 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition">
-                                Mapel
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Search & Action Bar -->
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6">
-                        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                            <div class="relative w-full sm:w-64">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </span>
-                                <input type="text" id="master-search-input" onkeyup="filterMasterTable()" placeholder="Cari data..." class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
-                            </div>
-
-                            <!-- Murid Class Filter & Group Controls -->
-                            <div id="master-murid-group-controls" class="hidden flex items-center space-x-2">
-                                <select id="master-murid-class-filter" onchange="renderMasterTable()" class="py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-xs font-semibold">
-                                    <option value="semua">-- Semua Kelas --</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center space-x-2 w-full sm:w-auto">
-                            <!-- Hidden File Input for Excel Import -->
-                            <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="handleExcelImport(event)" class="hidden">
-                            
-                            <button onclick="downloadExcelTemplate()" class="px-3.5 py-2.5 bg-slate-600 hover:bg-slate-700 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center space-x-2 shadow" title="Unduh Contoh Template Excel">
-                                <i class="fa-solid fa-file-download"></i>
-                                <span>Template Excel</span>
-                            </button>
-
-                            <button onclick="document.getElementById('excel-file-input').click()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center space-x-2 shadow">
-                                <i class="fa-solid fa-file-excel"></i>
-                                <span>Import File Excel (.xlsx)</span>
-                            </button>
-
-                            <button onclick="openAddMasterModal()" class="px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center space-x-2 shadow">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="openAddMasterModal()" class="px-3.5 py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl text-xs transition flex items-center space-x-1.5 shadow">
                                 <i class="fa-solid fa-plus"></i>
                                 <span id="btn-add-master-label">Tambah Data Guru</span>
                             </button>
+
+                            <button onclick="downloadExcelTemplate()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs transition flex items-center space-x-1.5 shadow" title="Unduh Template Excel Import Data">
+                                <i class="fa-solid fa-file-excel"></i>
+                                <span>Template Excel</span>
+                            </button>
+
+                            <label class="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl text-xs transition flex items-center space-x-1.5 shadow cursor-pointer">
+                                <i class="fa-solid fa-file-import"></i>
+                                <span>Import Excel</span>
+                                <input type="file" accept=".xlsx, .xls" onchange="handleExcelImport(event)" class="hidden">
+                            </label>
                         </div>
                     </div>
 
-                    <!-- Master Table Container -->
+                    <!-- Sub Tab Master Navigation -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
+                        <div class="inline-flex rounded-xl bg-slate-200/60 dark:bg-slate-700 p-1 text-xs w-full sm:w-auto">
+                            <button id="btn-master-guru" onclick="switchMasterTab('guru')" class="px-3.5 py-2 rounded-xl font-semibold bg-white dark:bg-slate-600 text-primary-600 dark:text-white shadow-sm transition">Guru</button>
+                            <button id="btn-master-murid" onclick="switchMasterTab('murid')" class="px-3.5 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition">Murid</button>
+                            <button id="btn-master-kelas" onclick="switchMasterTab('kelas')" class="px-3.5 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition">Kelas</button>
+                            <button id="btn-master-mapel" onclick="switchMasterTab('mapel')" class="px-3.5 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition">Mata Pelajaran</button>
+                        </div>
+
+                        <div class="flex items-center space-x-2 w-full sm:w-auto">
+                            <!-- Murid Filter Class Dropdown -->
+                            <div id="master-murid-group-controls" class="hidden">
+                                <select id="master-murid-class-filter" onchange="renderMasterTable()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-xs font-semibold">
+                                    <option value="semua">-- Semua Kelas --</option>
+                                </select>
+                            </div>
+
+                            <input type="text" id="master-search-input" onkeyup="filterMasterTable()" placeholder="Cari data master..." class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-xs w-full sm:w-48">
+                        </div>
+                    </div>
+
+                    <!-- Master Table -->
                     <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">
                         <table class="w-full text-left text-sm">
                             <thead id="master-table-head" class="bg-slate-100 dark:bg-slate-700/70 text-slate-700 dark:text-slate-200 font-semibold border-b border-slate-200 dark:border-slate-700">
                                 <!-- Dynamic Headers -->
                             </thead>
                             <tbody id="master-table-body" class="divide-y divide-slate-100 dark:divide-slate-700/50">
-                                <!-- Dynamic Content -->
+                                <!-- Dynamic Rows -->
                             </tbody>
                         </table>
                     </div>
@@ -936,6 +919,285 @@
             </section>
 
             <section id="view-laporan" class="hidden space-y-6">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-2xl bg-teal-100 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-file-export"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Laporan & Rekapan Data</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Filter data presensi, nilai, atau jurnal dan export ke CSV, Excel, atau PDF</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="exportToCSV()" class="px-3.5 py-2 bg-slate-600 hover:bg-slate-700 text-white font-semibold rounded-xl text-xs transition flex items-center space-x-1.5 shadow">
+                                <i class="fa-solid fa-file-csv"></i>
+                                <span>CSV</span>
+                            </button>
+                            <button onclick="exportToExcel()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs transition flex items-center space-x-1.5 shadow">
+                                <i class="fa-solid fa-file-excel"></i>
+                                <span>Excel (XLSX)</span>
+                            </button>
+                            <button onclick="exportToPDF()" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-xs transition flex items-center space-x-1.5 shadow">
+                                <i class="fa-solid fa-file-pdf"></i>
+                                <span>PDF Document</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Controls -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Kategori Laporan</label>
+                            <select id="lap-kategori" onchange="renderLaporanTable()" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm font-semibold">
+                                <option value="presensi" selected>Presensi Kehadiran</option>
+                                <option value="nilai">Penilaian Murid</option>
+                                <option value="jurnal">Jurnal Mengajar</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Filter Kelas</label>
+                            <select id="lap-kelas" onchange="renderLaporanTable()" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                                <option value="semua">Semua Kelas</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Filter Mapel</label>
+                            <select id="lap-mapel" onchange="renderLaporanTable()" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                                <option value="semua">-- Semua Mapel --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Pencarian Kata Kunci</label>
+                            <input type="text" id="lap-search" onkeyup="renderLaporanTable()" placeholder="Cari nama, tgl, status..." class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between mb-3 text-xs text-slate-500">
+                        <span>Menampilkan <strong id="lap-count" class="text-slate-800 dark:text-white">0</strong> entri data</span>
+                    </div>
+
+                    <!-- Laporan Table -->
+                    <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">
+                        <table class="w-full text-left text-sm">
+                            <thead id="lap-table-head" class="bg-slate-100 dark:bg-slate-700/70 text-slate-700 dark:text-slate-200 font-semibold border-b border-slate-200 dark:border-slate-700">
+                                <!-- Dynamic Header -->
+                            </thead>
+                            <tbody id="lap-table-body" class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-panduan" class="hidden space-y-6">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-6">
+                    <div class="flex items-center space-x-3 pb-4 border-b border-slate-100 dark:border-slate-700">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800 dark:text-white">Integrasi Google Apps Script (Spreadsheet)</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Hubungkan GuruSmart dengan Google Sheets untuk menyimpan & menyinkronkan seluruh data harian secara online</p>
+                        </div>
+                    </div>
+
+                    <!-- Configuration Form Card -->
+                    <div class="bg-slate-50 dark:bg-slate-700/30 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="font-bold text-sm text-slate-800 dark:text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-link text-indigo-500"></i>
+                            <span>URL Web App Google Apps Script</span>
+                        </h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Deployment Web App URL (https://script.google.com/macros/s/.../exec)</label>
+                            <input type="url" id="gas-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+
+                        <div class="flex flex-wrap gap-2 pt-1">
+                            <button onclick="saveGasUrl()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Simpan URL</span>
+                            </button>
+                            <button onclick="testGasConnection()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2">
+                                <i class="fa-solid fa-network-wired"></i>
+                                <span>Tes Koneksi Backend</span>
+                            </button>
+                            <button onclick="pullDataFromGas()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2">
+                                <i class="fa-solid fa-cloud-arrow-down"></i>
+                                <span>Tarik Data dari Spreadsheet</span>
+                            </button>
+                            <button onclick="syncDataToGas()" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <span>Kirim Data Lokal ke Spreadsheet</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Steps Instructions -->
+                    <div class="space-y-3">
+                        <h3 class="font-bold text-base text-slate-800 dark:text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-list-ol text-primary-600"></i>
+                            <span>Panduan Langkah Pemasangan Google Apps Script</span>
+                        </h3>
+
+                        <ol class="list-decimal list-inside space-y-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed pl-1">
+                            <li>Buat dokumen **Google Sheets** baru di Google Drive Anda.</li>
+                            <li>Buka menu **Ekstensi** &gt; **Apps Script** pada Google Sheets tersebut.</li>
+                            <li>Hapus seluruh kode yang ada pada editor `Code.gs`, lalu tempel (*paste*) kode Apps Script dari kotak di bawah.</li>
+                            <li>Klik tombol **Simpan** (ikon disket) atau tekan `Ctrl + S`.</li>
+                            <li>Klik tombol biru **Terapkan (Deploy)** di kanan atas &gt; **Penerapan Baru (New Deployment)**.</li>
+                            <li>Pilih jenis **Aplikasi Web (Web App)**:
+                                <ul class="list-disc list-inside pl-5 my-1 space-y-1 text-slate-500">
+                                    <li><strong>Jalankan Sebagai (Execute as)</strong>: <em>Saya (Me)</em></li>
+                                    <li><strong>Yang memiliki akses (Who has access)</strong>: <em>Siapa saja (Anyone)</em> &mdash; <strong class="text-amber-600 dark:text-amber-400">Penting agar dapat diakses aplikasi!</strong></li>
+                                </ul>
+                            </li>
+                            <li>Klik **Terapkan (Deploy)**, beri izin akses Google (*Allow*), lalu salin **URL Aplikasi Web** yang dihasilkan.</li>
+                            <li>Tempelkan URL tersebut pada kolom input di atas dan klik **Simpan URL & Tes Koneksi**.</li>
+                        </ol>
+                    </div>
+
+                    <!-- Apps Script Code Snippet Preview -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-white">Kode Google Apps Script (`Code.gs`)</h4>
+                            <button onclick="copyGasCode()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-lg text-xs transition flex items-center space-x-1.5">
+                                <i class="fa-solid fa-copy"></i>
+                                <span>Salin Kode GAS</span>
+                            </button>
+                        </div>
+                        <div class="bg-slate-900 text-slate-100 p-4 rounded-2xl text-xs font-mono overflow-x-auto max-h-96 leading-relaxed shadow-inner">
+                            <pre id="gas-code-preview"></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Modal Add/Edit Master Data -->
+    <div id="modal-master" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700 transform transition-all">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-700">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white" id="modal-master-title">Kelola Master Data</h3>
+                <button type="button" onclick="closeMasterModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="handleSaveMaster(event)" class="space-y-4">
+                <div id="master-form-fields" class="space-y-3">
+                    <!-- Dynamic Inputs -->
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button" onclick="closeMasterModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl text-sm shadow transition">
+                        Simpan Data
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Edit Presensi Single Item -->
+    <div id="modal-edit-presensi" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700 transform transition-all">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-700">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Edit Presensi Murid</h3>
+                <button type="button" onclick="closeEditPresensiModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="handleSaveEditPresensi(event)" class="space-y-4">
+                <input type="hidden" id="edit-pres-index">
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Nama Murid</label>
+                    <input type="text" id="edit-pres-nama" readonly class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 text-sm font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Status Kehadiran *</label>
+                    <select id="edit-pres-status" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm font-semibold">
+                        <option value="Hadir">Hadir</option>
+                        <option value="Izin">Izin</option>
+                        <option value="Sakit">Sakit</option>
+                        <option value="Alpha">Alpha</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Catatan Opsional</label>
+                    <input type="text" id="edit-pres-catatan" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm" placeholder="Keterangan tambahan...">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button" onclick="closeEditPresensiModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm shadow transition">
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tidak Ada KBM / Libur Massal -->
+    <div id="modal-no-kbm" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700 transform transition-all">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-700">
+                <div class="flex items-center space-x-2 text-purple-600 dark:text-purple-400">
+                    <i class="fa-solid fa-calendar-xmark text-xl"></i>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-white">Tidak Ada KBM / Libur Massal</h3>
+                </div>
+                <button type="button" onclick="closeNoKbmModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="applyNoKbm(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Set Status Kehadiran *</label>
+                    <select id="nokbm-status" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm font-semibold">
+                        <option value="Izin" selected>Izin (Disarankan untuk Tidak Ada KBM / Libur)</option>
+                        <option value="Hadir">Hadir</option>
+                        <option value="Sakit">Sakit</option>
+                        <option value="Alpha">Alpha</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Keterangan / Alasan Manual *</label>
+                    <input type="text" id="nokbm-alasan" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm" placeholder="Contoh: Guru Dinas Luar, Classmeeting, Libur Nasional...">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-slate-500">Pilihan Alasan Cepat:</label>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" onclick="setQuickReason('Guru Dinas Luar')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 font-medium">Guru Dinas Luar</button>
+                        <button type="button" onclick="setQuickReason('Kegiatan Sekolah / Classmeeting')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 font-medium">Kegiatan Sekolah</button>
+                        <button type="button" onclick="setQuickReason('Libur Sekolah / Tanggal Merah')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 font-medium">Libur Sekolah</button>
+                        <button type="button" onclick="setQuickReason('Ujian / Asesmen Sekolah')" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 font-medium">Ujian / Asesmen</button>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button" onclick="closeNoKbmModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl text-sm shadow transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Terapkan Ke Seluruh Murid</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal Bulk Edit Class for Murid -->
     <div id="modal-bulk-edit-class" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700 transform transition-all">
@@ -970,7 +1232,7 @@
 
     <!-- Modal Confirm Delete -->
     <div id="modal-confirm-delete" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700 text-center transform transition-all">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-sm w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700 text-center transform transition-all">
             <div class="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl mx-auto mb-4">
                 <i class="fa-solid fa-trash-can"></i>
             </div>
@@ -1438,9 +1700,8 @@
             let jurnalData = [];
 
             if (period === 'daily') {
-                // Monday to Friday of the current week
                 const now = new Date();
-                const day = now.getDay(); // 0 = Sun, 1 = Mon, ...
+                const day = now.getDay();
                 const diffToMon = day === 0 ? -6 : 1 - day;
                 
                 const monday = new Date(now);
@@ -1468,7 +1729,6 @@
                 });
 
             } else {
-                // Monthly
                 labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
                 presData = new Array(12).fill(0);
                 nilaiData = new Array(12).fill(0);
@@ -1561,8 +1821,12 @@
         }
 
         function loadPresensiStudents() {
-            const selectedKelas = document.getElementById('pres-kelas').value;
+            const elKelas = document.getElementById('pres-kelas');
+            if (!elKelas) return;
+            const selectedKelas = elKelas.value;
             const tbody = document.getElementById('table-presensi-body');
+            if (!tbody) return;
+
             const activeMode = getActiveMode();
             const filtered = STATE.data.Murid.filter(m => 
                 m.kelas === selectedKelas && 
@@ -1603,7 +1867,7 @@
         }
 
         function setAllAttendance(status) {
-            const selectedKelas = document.getElementById('pres-kelas').value;
+            const selectedKelas = document.getElementById('pres-kelas') ? document.getElementById('pres-kelas').value : '';
             const activeMode = getActiveMode();
             const students = STATE.data.Murid.filter(m => 
                 m.kelas === selectedKelas && 
@@ -1871,8 +2135,8 @@
 
         function renderRiwayatPresensi() {
             const tbody = document.getElementById('table-riwayat-presensi-body');
-            const filterTgl = document.getElementById('riwayat-pres-tanggal').value;
-            const filterKelas = document.getElementById('riwayat-pres-kelas').value;
+            const filterTgl = document.getElementById('riwayat-pres-tanggal') ? document.getElementById('riwayat-pres-tanggal').value : '';
+            const filterKelas = document.getElementById('riwayat-pres-kelas') ? document.getElementById('riwayat-pres-kelas').value : 'semua';
 
             const filtered = STATE.data.Presensi.filter(p => {
                 if (filterTgl && p.tanggal !== filterTgl) return false;
@@ -1993,8 +2257,12 @@
         }
 
         function loadNilaiStudents() {
-            const selectedKelas = document.getElementById('nilai-kelas').value;
+            const elKelas = document.getElementById('nilai-kelas');
+            if (!elKelas) return;
+            const selectedKelas = elKelas.value;
             const tbody = document.getElementById('table-nilai-body');
+            if (!tbody) return;
+
             const activeMode = getActiveMode();
             const filtered = STATE.data.Murid.filter(m => 
                 m.kelas === selectedKelas && 
@@ -2192,13 +2460,17 @@
             }
 
             const labelMap = { guru: 'Guru', murid: 'Murid', kelas: 'Kelas', mapel: 'Mata Pelajaran' };
-            document.getElementById('btn-add-master-label').textContent = `Tambah Data ${labelMap[tab]}`;
+            const labelEl = document.getElementById('btn-add-master-label');
+            if (labelEl) labelEl.textContent = `Tambah Data ${labelMap[tab]}`;
+
             renderMasterTable();
         }
 
         function renderMasterTable() {
             const head = document.getElementById('master-table-head');
             const body = document.getElementById('master-table-body');
+            if (!head || !body) return;
+
             const tab = STATE.activeMasterTab;
             const activeMode = getActiveMode();
 
@@ -2253,740 +2525,4 @@
                 Object.keys(grouped).forEach(className => {
                     const classStudents = grouped[className];
                     html += `
-                        <tr class="bg-slate-100/80 dark:bg-slate-700/80 border-y border-slate-200 dark:border-slate-600 font-bold text-xs text-slate-700 dark:text-slate-200">
-                            <td colspan="4" class="p-3">
-                                <div class="flex items-center space-x-2">
-                                    <i class="fa-solid fa-graduation-cap text-primary-600 dark:text-primary-400"></i>
-                                    <span class="text-sm font-bold">${className}</span>
-                                    <span class="px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-300 text-xs font-semibold">${classStudents.length} Murid</span>
-                                </div>
-                            </td>
-                            <td colspan="2" class="p-3 text-right">
-                                <div class="inline-flex items-center space-x-2">
-                                    <button onclick="openBulkEditClassModal('${className}')" class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 hover:bg-blue-200 transition text-xs font-semibold flex items-center space-x-1" title="Ubah nama kelas untuk semua murid ini">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                        <span>Edit Kelas</span>
-                                    </button>
-                                    <button onclick="confirmDeleteClassGroup('${className}')" class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 hover:bg-rose-200 transition text-xs font-semibold flex items-center space-x-1" title="Hapus seluruh murid di kelas ini">
-                                        <i class="fa-solid fa-trash"></i>
-                                        <span>Hapus 1 Kelas</span>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-
-                    classStudents.forEach(m => {
-                        const realIndex = STATE.data.Murid.indexOf(m);
-                        html += `
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                                <td class="p-3 font-mono text-xs">${m.nis}</td>
-                                <td class="p-3 font-medium text-slate-800 dark:text-slate-100 text-xs">${m.nama}</td>
-                                <td class="p-3 text-xs">${m.kelas}</td>
-                                <td class="p-3 text-xs font-semibold">${m.jk}</td>
-                                <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-300 font-semibold">${m.mapelGroup || activeMode}</span></td>
-                                <td class="p-3 text-center space-x-2">
-                                    <button onclick="editMasterItem('Murid', ${realIndex})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg" title="Edit Murid Ini"><i class="fa-solid fa-pen"></i></button>
-                                    <button onclick="deleteMasterItem('Murid', ${realIndex})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg" title="Hapus Murid Ini"><i class="fa-solid fa-trash"></i></button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                });
-
-                body.innerHTML = html;
-            } else if (tab === 'kelas') {
-                head.innerHTML = `<tr><th class="p-3">ID</th><th class="p-3">Nama Kelas</th><th class="p-3">Wali Kelas</th><th class="p-3">Mode Mapel</th><th class="p-3 text-center">Aksi</th></tr>`;
-                const classList = getActiveClasses();
-
-                if (classList.length === 0) {
-                    body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Belum ada kelas terdaftar untuk mode ${activeMode}</td></tr>`;
-                    return;
-                }
-
-                body.innerHTML = classList.map((k) => {
-                    const realIndex = STATE.data.Kelas.indexOf(k);
-                    return `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                        <td class="p-3 font-mono text-xs">${k.id || 'K'}</td>
-                        <td class="p-3 font-medium">${k.nama}</td>
-                        <td class="p-3 text-xs">${k.wali}</td>
-                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-300 font-semibold">${k.mapelGroup || activeMode}</span></td>
-                        <td class="p-3 text-center space-x-2">
-                            <button onclick="editMasterItem('Kelas', ${realIndex})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteMasterItem('Kelas', ${realIndex})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-                }).join('');
-            } else if (tab === 'mapel') {
-                head.innerHTML = `<tr><th class="p-3">ID</th><th class="p-3">Nama Mata Pelajaran</th><th class="p-3">Mode Mapel</th><th class="p-3 text-center">Aksi</th></tr>`;
-                const mapelList = getActiveMapel();
-
-                if (mapelList.length === 0) {
-                    body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Belum ada mata pelajaran terdaftar untuk mode ${activeMode}</td></tr>`;
-                    return;
-                }
-
-                body.innerHTML = mapelList.map((mp) => {
-                    const realIndex = STATE.data.Mapel.indexOf(mp);
-                    return `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                        <td class="p-3 font-mono text-xs">${mp.id || 'M'}</td>
-                        <td class="p-3 font-medium">${mp.nama}</td>
-                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-300 font-semibold">${mp.mapelGroup || activeMode}</span></td>
-                        <td class="p-3 text-center space-x-2">
-                            <button onclick="editMasterItem('Mapel', ${realIndex})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteMasterItem('Mapel', ${realIndex})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-                }).join('');
-            }
-        }
-
-        function openBulkEditClassModal(oldClassName) {
-            if (!oldClassName) return;
-            document.getElementById('bulk-edit-old-class').value = oldClassName;
-            document.getElementById('bulk-edit-old-class-display').value = oldClassName;
-            document.getElementById('bulk-edit-new-class').value = oldClassName;
-            document.getElementById('modal-bulk-edit-class').classList.remove('hidden');
-        }
-
-        function closeBulkEditClassModal() {
-            document.getElementById('modal-bulk-edit-class').classList.add('hidden');
-        }
-
-        function handleSaveBulkEditClass(e) {
-            e.preventDefault();
-            const oldName = document.getElementById('bulk-edit-old-class').value;
-            const newName = document.getElementById('bulk-edit-new-class').value.trim();
-
-            if (!newName) {
-                showToast('Nama kelas baru tidak boleh kosong', 'error');
-                return;
-            }
-
-            if (oldName === newName) {
-                closeBulkEditClassModal();
-                return;
-            }
-
-            let updatedCount = 0;
-            STATE.data.Murid.forEach(m => {
-                if (m.kelas === oldName) {
-                    m.kelas = newName;
-                    updatedCount++;
-                }
-            });
-
-            // Also update matching class in Kelas master data if present
-            const activeMode = getActiveMode();
-            const classObj = STATE.data.Kelas.find(k => k.nama === oldName && (k.mapelGroup === activeMode || !k.mapelGroup));
-            if (classObj) {
-                classObj.nama = newName;
-            }
-
-            saveLocalDb();
-            populateSelects();
-            renderMasterTable();
-            renderDashboard();
-            closeBulkEditClassModal();
-            showToast(`Berhasil memperbarui nama kelas untuk ${updatedCount} murid dari "${oldName}" menjadi "${newName}"`, 'success');
-        }
-
-        function confirmDeleteClassGroup(className) {
-            if (!className) return;
-            const count = STATE.data.Murid.filter(m => m.kelas === className).length;
-            STATE.deletePending = { entity: 'DeleteClassStudents', className: className };
-            const textEl = document.getElementById('delete-confirm-text');
-            if (textEl) {
-                textEl.textContent = `Apakah Anda yakin ingin MENGHAPUS SELURUH MURID (${count} murid) pada kelas "${className}"? Tindakan ini tidak dapat dibatalkan.`;
-            }
-            document.getElementById('modal-confirm-delete').classList.remove('hidden');
-        }
-
-        function closeMasterModal() {
-            document.getElementById('modal-master').classList.add('hidden');
-        }
-
-        function renderMasterFormFields(entityType = null, data = null) {
-            const tab = entityType ? entityType.toLowerCase() : STATE.activeMasterTab;
-            const container = document.getElementById('master-form-fields');
-
-            if (tab === 'guru') {
-                container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Nama Guru *</label>
-                        <input type="text" id="m-guru-nama" value="${data ? data.nama : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Username *</label>
-                        <input type="text" id="m-guru-user" value="${data ? data.username : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Mata Pelajaran</label>
-                        <input type="text" id="m-guru-mapel" value="${data ? data.mapel : 'Pendidikan Pancasila'}" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                `;
-            } else if (tab === 'murid') {
-                container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">NIS *</label>
-                        <input type="text" id="m-murid-nis" value="${data ? data.nis : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Nama Murid *</label>
-                        <input type="text" id="m-murid-nama" value="${data ? data.nama : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Kelas *</label>
-                        <input type="text" id="m-murid-kelas" value="${data ? data.kelas : 'XII Usaha Layanan Pariwisata'}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Jenis Kelamin</label>
-                        <select id="m-murid-jk" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                            <option value="L" ${data && data.jk === 'L' ? 'selected' : ''}>Laki-laki (L)</option>
-                            <option value="P" ${data && data.jk === 'P' ? 'selected' : ''}>Perempuan (P)</option>
-                        </select>
-                    </div>
-                `;
-            } else if (tab === 'kelas') {
-                container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Nama Kelas *</label>
-                        <input type="text" id="m-kelas-nama" value="${data ? data.nama : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Wali Kelas</label>
-                        <input type="text" id="m-kelas-wali" value="${data ? data.wali : ''}" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                `;
-            } else if (tab === 'mapel') {
-                container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Nama Mata Pelajaran *</label>
-                        <input type="text" id="m-mapel-nama" value="${data ? data.nama : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                `;
-            }
-        }
-
-        function handleSaveMaster(e) {
-            e.preventDefault();
-            const tab = STATE.activeMasterTab;
-            const idx = STATE.editingIndex;
-            const activeMode = getActiveMode();
-
-            if (tab === 'guru') {
-                const item = {
-                    id: idx !== null && idx >= 0 ? STATE.data.Guru[idx].id : 'G' + Date.now().toString().slice(-3),
-                    nama: document.getElementById('m-guru-nama').value.trim(),
-                    username: document.getElementById('m-guru-user').value.trim(),
-                    mapel: document.getElementById('m-guru-mapel').value.trim()
-                };
-                if (idx !== null && idx >= 0) STATE.data.Guru[idx] = item;
-                else STATE.data.Guru.push(item);
-            } else if (tab === 'murid') {
-                const item = {
-                    nis: document.getElementById('m-murid-nis').value.trim(),
-                    nama: document.getElementById('m-murid-nama').value.trim(),
-                    kelas: document.getElementById('m-murid-kelas').value.trim(),
-                    jk: document.getElementById('m-murid-jk').value,
-                    mapelGroup: activeMode
-                };
-                if (idx !== null && idx >= 0) STATE.data.Murid[idx] = item;
-                else STATE.data.Murid.push(item);
-            } else if (tab === 'kelas') {
-                const item = {
-                    id: idx !== null && idx >= 0 ? STATE.data.Kelas[idx].id : 'K' + Date.now().toString().slice(-3),
-                    nama: document.getElementById('m-kelas-nama').value.trim(),
-                    wali: document.getElementById('m-kelas-wali').value.trim(),
-                    mapelGroup: activeMode
-                };
-                if (idx !== null && idx >= 0) STATE.data.Kelas[idx] = item;
-                else STATE.data.Kelas.push(item);
-            } else if (tab === 'mapel') {
-                const item = {
-                    id: idx !== null && idx >= 0 ? STATE.data.Mapel[idx].id : 'M' + Date.now().toString().slice(-3),
-                    nama: document.getElementById('m-mapel-nama').value.trim(),
-                    mapelGroup: activeMode
-                };
-                if (idx !== null && idx >= 0) STATE.data.Mapel[idx] = item;
-                else STATE.data.Mapel.push(item);
-            }
-
-            saveLocalDb();
-            populateSelects();
-            renderMasterTable();
-            renderDashboard();
-            closeMasterModal();
-            showToast('Data master berhasil disimpan!', 'success');
-        }
-
-        function handleExcelImport(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            showLoading('Membaca file Excel...');
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-                    if (!json || json.length < 2) {
-                        hideLoading();
-                        showToast('File Excel kosong atau format tidak sesuai', 'error');
-                        return;
-                    }
-
-                    const activeMode = getActiveMode();
-                    let addedMurid = 0;
-                    let addedKelas = 0;
-
-                    let headerIdx = -1;
-                    let nisCol = -1, namaCol = -1, kelasCol = -1, jkCol = -1, waliCol = -1;
-
-                    for (let i = 0; i < Math.min(json.length, 10); i++) {
-                        const row = json[i].map(c => String(c || '').toLowerCase().trim());
-                        if (row.some(c => c.includes('nama') || c.includes('nis') || c.includes('kelas'))) {
-                            headerIdx = i;
-                            nisCol = row.findIndex(c => c.includes('nis') || c.includes('no. induk'));
-                            namaCol = row.findIndex(c => c.includes('nama'));
-                            kelasCol = row.findIndex(c => c.includes('kelas'));
-                            jkCol = row.findIndex(c => c.includes('l/p') || c.includes('jk') || c.includes('jenis kelamin') || c.includes('sex'));
-                            waliCol = row.findIndex(c => c.includes('wali'));
-                            break;
-                        }
-                    }
-
-                    if (namaCol === -1) namaCol = 1;
-                    if (nisCol === -1) nisCol = 0;
-
-                    for (let i = headerIdx + 1; i < json.length; i++) {
-                        const row = json[i];
-                        if (!row || row.length === 0) continue;
-
-                        const nama = row[namaCol] ? String(row[namaCol]).trim() : '';
-                        const nis = row[nisCol] ? String(row[nisCol]).trim() : `NIS-${i}`;
-                        let kelas = kelasCol !== -1 && row[kelasCol] ? String(row[kelasCol]).trim() : '';
-                        let jk = jkCol !== -1 && row[jkCol] ? String(row[jkCol]).trim().toUpperCase() : 'L';
-                        let wali = waliCol !== -1 && row[waliCol] ? String(row[waliCol]).trim() : 'Marjiranto, S.E., M.Pd.';
-
-                        if (!nama || nama.toLowerCase().includes('mengetahui') || nama.toLowerCase().includes('wali kelas') || nama.toLowerCase().includes('nip')) continue;
-
-                        if (!kelas) kelas = 'XII Usaha Layanan Pariwisata';
-
-                        if (!STATE.data.Kelas.some(k => k.nama === kelas && (k.mapelGroup === activeMode || !k.mapelGroup))) {
-                            STATE.data.Kelas.push({
-                                id: 'K' + (STATE.data.Kelas.length + 1),
-                                nama: kelas,
-                                wali: wali,
-                                mapelGroup: activeMode
-                            });
-                            addedKelas++;
-                        }
-
-                        if (!STATE.data.Murid.some(m => m.nis === nis)) {
-                            STATE.data.Murid.push({
-                                nis: nis,
-                                nama: nama,
-                                kelas: kelas,
-                                jk: jk.startsWith('P') ? 'P' : 'L',
-                                mapelGroup: activeMode
-                            });
-                            addedMurid++;
-                        }
-                    }
-
-                    saveLocalDb();
-                    populateSelects();
-                    renderMasterTable();
-                    renderDashboard();
-                    hideLoading();
-                    showToast(`Berhasil mengimpor ${addedMurid} murid & ${addedKelas} kelas baru!`, 'success');
-
-                } catch (err) {
-                    hideLoading();
-                    showToast('Gagal memproses file Excel: ' + err.message, 'error');
-                }
-            };
-
-            reader.readAsArrayBuffer(file);
-            event.target.value = '';
-        }
-
-        function downloadExcelTemplate() {
-            const data = [
-                ["NIS", "Nama Murid", "Kelas", "L/P", "Wali Kelas"],
-                ["1001", "Ahmad Fauzi", "XII ULP", "L", "Marjiranto, S.E., M.Pd."],
-                ["1002", "Siti Aminah", "XII ULP", "P", "Marjiranto, S.E., M.Pd."],
-                ["1003", "Budi Santoso", "XII ULP", "L", "Marjiranto, S.E., M.Pd."]
-            ];
-
-            const ws = XLSX.utils.aoa_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "MasterData");
-            XLSX.writeFile(wb, "Template_Import_Master_GuruSmart.xlsx");
-            showToast("Template Excel berhasil diunduh!", "success");
-        }
-
-        function getFilteredLaporanData() {
-            const kategori = document.getElementById('lap-kategori').value;
-            const kelas = document.getElementById('lap-kelas').value;
-            const mapel = document.getElementById('lap-mapel').value;
-            const search = document.getElementById('lap-search').value.toLowerCase();
-
-            let raw = [];
-            if (kategori === 'presensi') raw = STATE.data.Presensi;
-            else if (kategori === 'nilai') raw = STATE.data.Nilai;
-            else if (kategori === 'jurnal') raw = STATE.data.Jurnal;
-
-            return raw.filter(item => {
-                if (kelas !== 'semua' && item.kelas !== kelas) return false;
-                if (mapel !== 'semua' && item.mapel !== mapel) return false;
-                if (search) {
-                    const str = JSON.stringify(item).toLowerCase();
-                    if (!str.includes(search)) return false;
-                }
-                return true;
-            });
-        }
-
-        function renderLaporanTable() {
-            const kategori = document.getElementById('lap-kategori').value;
-            const head = document.getElementById('lap-table-head');
-            const body = document.getElementById('lap-table-body');
-
-            const filtered = getFilteredLaporanData();
-            document.getElementById('lap-count').textContent = filtered.length;
-
-            if (filtered.length === 0) {
-                head.innerHTML = `<tr><th class="p-3">Data</th></tr>`;
-                body.innerHTML = `<tr><td class="p-8 text-center text-slate-400">Belum ada data rekapan yang sesuai filter.</td></tr>`;
-                return;
-            }
-
-            if (kategori === 'presensi') {
-                head.innerHTML = `<tr><th class="p-3">Tanggal</th><th class="p-3">Pertemuan</th><th class="p-3">Kelas</th><th class="p-3">Nama Murid</th><th class="p-3">Status</th><th class="p-3">Catatan</th></tr>`;
-                body.innerHTML = filtered.map(d => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                        <td class="p-3 text-xs">${d.tanggal}</td>
-                        <td class="p-3 text-xs text-center">${d.pertemuan || 1}</td>
-                        <td class="p-3 text-xs">${d.kelas}</td>
-                        <td class="p-3 font-medium text-xs">${d.namaMurid}</td>
-                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded-md font-semibold text-xs ${getBadgeColor(d.status)}">${d.status}</span></td>
-                        <td class="p-3 text-xs text-slate-500">${d.catatan || '-'}</td>
-                    </tr>
-                `).join('');
-            } else if (kategori === 'nilai') {
-                head.innerHTML = `<tr><th class="p-3">Tanggal</th><th class="p-3">Kelas</th><th class="p-3">Jenis Penilaian</th><th class="p-3">Nama Penilaian</th><th class="p-3">Nama Murid</th><th class="p-3 text-center">Nilai</th></tr>`;
-                body.innerHTML = filtered.map(d => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                        <td class="p-3 text-xs">${d.tanggal}</td>
-                        <td class="p-3 text-xs">${d.kelas}</td>
-                        <td class="p-3 text-xs">${d.jenisPenilaian}</td>
-                        <td class="p-3 text-xs">${d.namaPenilaian}</td>
-                        <td class="p-3 font-medium text-xs">${d.namaMurid}</td>
-                        <td class="p-3 text-center font-bold text-xs ${d.nilai >= 75 ? 'text-emerald-600' : 'text-rose-600'}">${d.nilai}</td>
-                    </tr>
-                `).join('');
-            } else if (kategori === 'jurnal') {
-                head.innerHTML = `<tr><th class="p-3">Tanggal</th><th class="p-3">Jam</th><th class="p-3">Kelas</th><th class="p-3">Materi</th><th class="p-3">Status</th></tr>`;
-                body.innerHTML = filtered.map(d => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                        <td class="p-3 text-xs">${d.tanggal}</td>
-                        <td class="p-3 text-xs">${d.jam}</td>
-                        <td class="p-3 text-xs">${d.kelas}</td>
-                        <td class="p-3 font-medium text-xs">${d.materi}</td>
-                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded-md font-semibold text-xs ${d.status === 'Terlaksana' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${d.status}</span></td>
-                    </tr>
-                `).join('');
-            }
-        }
-
-        function getBadgeColor(status) {
-            if (status === 'Hadir') return 'bg-emerald-100 text-emerald-700';
-            if (status === 'Izin') return 'bg-blue-100 text-blue-700';
-            if (status === 'Sakit') return 'bg-amber-100 text-amber-700';
-            return 'bg-rose-100 text-rose-700';
-        }
-
-        function exportToCSV() {
-            const data = getFilteredLaporanData();
-            if (!data || data.length === 0) return showToast('Tidak ada data untuk di-export', 'error');
-
-            const keys = Object.keys(data[0]);
-            let csv = keys.join(',') + '\n';
-            data.forEach(row => {
-                csv += keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`).join(',') + '\n';
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Laporan_GuruSmart_${Date.now()}.csv`;
-            a.click();
-            showToast('Export CSV berhasil diunduh', 'success');
-        }
-
-        function exportToExcel() {
-            const data = getFilteredLaporanData();
-            if (!data || data.length === 0) return showToast('Tidak ada data untuk di-export', 'error');
-
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Laporan");
-            XLSX.writeFile(wb, `Laporan_GuruSmart_${Date.now()}.xlsx`);
-            showToast('Export Excel XLSX berhasil diunduh', 'success');
-        }
-
-        function exportToPDF() {
-            const data = getFilteredLaporanData();
-            if (!data || data.length === 0) return showToast('Tidak ada data untuk di-export', 'error');
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            const kategori = document.getElementById('lap-kategori').value.toUpperCase();
-            doc.setFontSize(16);
-            doc.text(`LAPORAN REKAPAN ${kategori}`, 14, 15);
-            doc.setFontSize(10);
-            doc.text(`Dicetak Oleh: ${STATE.currentUser ? STATE.currentUser.nama : 'Guru'} | Tanggal: ${new Date().toLocaleDateString('id-ID')}`, 14, 22);
-
-            const keys = Object.keys(data[0]);
-            const headers = [keys];
-            const rows = data.map(obj => keys.map(k => obj[k] || ''));
-
-            doc.autoTable({
-                head: headers,
-                body: rows,
-                startY: 28,
-                theme: 'grid',
-                styles: { fontSize: 8 },
-                headStyles: { fillColor: [37, 99, 235] }
-            });
-
-            doc.save(`Laporan_GuruSmart_${Date.now()}.pdf`);
-            showToast('Export PDF berhasil diunduh', 'success');
-        }
-
-        function openGasModal() {
-            switchTab('panduan');
-        }
-
-        function saveGasUrl() {
-            const url = document.getElementById('gas-url-input').value.trim();
-            STATE.gasUrl = url;
-            localStorage.setItem('guru_gas_url', url);
-            updateGasStatusBadge();
-            showToast(url ? 'URL Backend GAS berhasil disimpan!' : 'Menggunakan Mode Lokal Browser', 'success');
-        }
-
-        function updateGasStatusBadge() {
-            const badgeText = document.getElementById('api-status-text');
-            const badge = document.getElementById('api-status-badge');
-            const urlInput = document.getElementById('gas-url-input');
-
-            if (urlInput) urlInput.value = STATE.gasUrl;
-
-            if (STATE.gasUrl) {
-                badgeText.textContent = 'GAS Terhubung';
-                badge.className = 'px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500 text-white flex items-center space-x-1 hover:bg-emerald-600 transition';
-            } else {
-                badgeText.textContent = 'Mode Lokal';
-                badge.className = 'px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500 text-white flex items-center space-x-1 hover:bg-amber-600 transition';
-            }
-        }
-
-        function apiCall(action, payload = {}) {
-            return new Promise((resolve, reject) => {
-                if (!STATE.gasUrl) {
-                    return reject('No GAS URL configured');
-                }
-
-                const url = STATE.gasUrl + (STATE.gasUrl.includes('?') ? '&' : '?') + 'action=' + action;
-
-                fetch(url, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                })
-                .then(res => res.json())
-                .then(json => resolve(json))
-                .catch(err => reject(err));
-            });
-        }
-
-        function showLoading(msg = 'Memproses data...') {
-            document.getElementById('loading-text').textContent = msg;
-            document.getElementById('loading-overlay').classList.remove('hidden');
-        }
-
-        function hideLoading() {
-            document.getElementById('loading-overlay').classList.add('hidden');
-        }
-
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-            const toast = document.createElement('div');
-
-            const bgMap = {
-                success: 'bg-emerald-600 text-white',
-                error: 'bg-rose-600 text-white',
-                info: 'bg-primary-800 text-white'
-            };
-
-            const iconMap = {
-                success: 'fa-circle-check',
-                error: 'fa-triangle-exclamation',
-                info: 'fa-circle-info'
-            };
-
-            toast.className = `p-4 rounded-2xl shadow-xl flex items-center space-x-3 pointer-events-auto transform transition-all duration-300 translate-y-4 opacity-0 ${bgMap[type] || bgMap.info}`;
-            toast.innerHTML = `
-                <i class="fa-solid ${iconMap[type]} text-lg"></i>
-                <span class="text-sm font-medium">${message}</span>
-            `;
-
-            container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-4', 'opacity-0');
-            }, 10);
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-4');
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
-
-        function copyGasCode() {
-            const codeText = document.getElementById('gas-code-preview').innerText;
-            const temp = document.createElement('textarea');
-            temp.value = codeText;
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand('copy');
-            document.body.removeChild(temp);
-            showToast('Kode GAS berhasil disalin ke clipboard!', 'success');
-        }
-
-        function renderGasCodePreview() {
-            const gasCode = `/**
- * BACKEND GOOGLE APPS SCRIPT (Code.gs)
- * Aplikasi Web Manajemen Guru (GuruSmart)
- */
-
-function doGet(e) {
-  return ContentService
-    .createTextOutput(JSON.stringify({ status: "success", message: "Google Apps Script Backend Server Online" }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function doPost(e) {
-  var response = { status: "error", message: "Invalid action" };
-  try {
-    var action = e.parameter.action;
-    var data = JSON.parse(e.postData.contents || "{}");
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-
-    if (action === "login") {
-      var sheetGuru = ss.getSheetByName("Guru");
-      var values = sheetGuru.getDataRange().getValues();
-      var found = null;
-      for (var i = 1; i < values.length; i++) {
-        if (values[i][2] == data.username && values[i][3] == data.password) {
-          found = {
-            id: values[i][0],
-            nama: values[i][1],
-            username: values[i][2],
-            mapel: values[i][4]
-          };
-          break;
-        }
-      }
-      if (found) {
-        response = { status: "success", guru: found };
-      } else {
-        response = { status: "error", message: "Username atau password salah" };
-      }
-    } 
-    else if (action === "savePresensi") {
-      var sheet = ss.getSheetByName("Presensi");
-      var items = data.items || [];
-      items.forEach(function(item) {
-        sheet.appendRow([
-          item.timestamp,
-          item.tanggal,
-          item.guru,
-          item.mapel,
-          item.kelas,
-          item.pertemuan,
-          item.namaMurid,
-          item.status,
-          item.catatan
-        ]);
-      });
-      response = { status: "success", count: items.length };
-    }
-    else if (action === "saveNilai") {
-      var sheet = ss.getSheetByName("Nilai");
-      var items = data.items || [];
-      items.forEach(function(item) {
-        sheet.appendRow([
-          item.timestamp,
-          item.guru,
-          item.mapel,
-          item.kelas,
-          item.jenisPenilaian,
-          item.namaPenilaian,
-          item.namaMurid,
-          item.nilai
-        ]);
-      });
-      response = { status: "success", count: items.length };
-    }
-    else if (action === "saveJurnal") {
-      var sheet = ss.getSheetByName("Jurnal");
-      sheet.appendRow([
-        data.timestamp,
-        data.tanggal,
-        data.jam,
-        data.guru,
-        data.mapel,
-        data.kelas,
-        data.materi,
-        data.tujuan,
-        data.aktivitas,
-        data.metode,
-        data.media,
-        data.refleksi,
-        data.catatan,
-        data.status
-      ]);
-      response = { status: "success" };
-    }
-  } catch (err) {
-    response = { status: "error", message: err.toString() };
-  }
-
-  return ContentService
-    .createTextOutput(JSON.stringify(response))
-    .setMimeType(ContentService.MimeType.JSON);
-}`;
-
-            const previewEl = document.getElementById('gas-code-preview');
-            if (previewEl) previewEl.innerText = gasCode;
-        }
-    </script>
-</body>
-</html>
+                        <tr class="bg-slate-100/80 dark:bg-slate-700/80 border-y border-slate-200 dark:border-slate-600 font-
