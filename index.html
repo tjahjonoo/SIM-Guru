@@ -98,7 +98,7 @@
             <div class="flex items-center space-x-2 md:space-x-4">
                 <!-- Sync Status Badge -->
                 <button onclick="openGasModal()" id="api-status-badge" class="px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500 text-white flex items-center space-x-1 hover:bg-amber-600 transition">
-                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                    <span id="sync-dot-indicator" class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                     <span id="api-status-text">Mode Lokal</span>
                 </button>
 
@@ -193,7 +193,7 @@
 
             <!-- Footer Sidebar -->
             <div class="p-4 border-t border-slate-100 dark:border-slate-700 text-xs text-center text-slate-400">
-                GuruSmart v2.5 &bull; Google Apps Script Ready
+                GuruSmart v2.5 &bull; Realtime Cloud Sync
             </div>
         </aside>
 
@@ -244,6 +244,15 @@
                                 <option value="Informatika & KKA">Guru Informatika & KKA</option>
                             </select>
                         </div>
+                    </div>
+
+                    <!-- Optional URL GAS for Multi-Device Sync on Login -->
+                    <div class="pt-1 border-t border-slate-100 dark:border-slate-700">
+                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center space-x-1">
+                            <i class="fa-solid fa-link text-indigo-500"></i>
+                            <span>URL Backend GAS (Opsional / Multi-Device)</span>
+                        </label>
+                        <input type="url" id="login-gas-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 font-mono">
                     </div>
 
                     <div class="flex flex-col space-y-2.5 pt-2">
@@ -365,13 +374,16 @@
                     </div>
                 </div>
 
-                <!-- Detail Ringkasan Hari Ini Per Kelas -->
+                <!-- Detail Ringkasan Hari Ini Per Kelas (Hanya Tampil Kelas yang Sudah Diiisi Presensi Hari Ini) -->
                 <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-lg text-slate-800 dark:text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-list-check text-primary-600"></i>
-                            <span>Status Aktivitas Mengajar Hari Ini Per Kelas</span>
-                        </h3>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800 dark:text-white flex items-center space-x-2">
+                                <i class="fa-solid fa-list-check text-primary-600"></i>
+                                <span>Status Aktivitas Mengajar Hari Ini Per Kelas</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Menampilkan kelas yang sudah diisi presensi hari ini</p>
+                        </div>
                         <span class="text-xs px-2.5 py-1 bg-primary-100 text-primary-700 rounded-full font-semibold" id="today-breakdown-date">Hari Ini</span>
                     </div>
                     <div id="today-class-breakdown-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -816,7 +828,7 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Tujuan Pembelajaran *</label>
-                            <textarea id="jurnal-tujuan" rows="2" required placeholder="Siswa dapat memahami..." class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm"></textarea>
+                            <textarea id="jurnal-tujuan" rows="2" required placeholder="Murid dapat memahami..." class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm"></textarea>
                         </div>
 
                         <div>
@@ -844,7 +856,7 @@
 
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Catatan Tambahan</label>
-                                <textarea id="jurnal-catatan" rows="2" placeholder="Siswa tidak hadir / kendala kelas..." class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm"></textarea>
+                                <textarea id="jurnal-catatan" rows="2" placeholder="Murid tidak hadir / kendala kelas..." class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm"></textarea>
                             </div>
                         </div>
 
@@ -1011,7 +1023,7 @@
                         </div>
                         <div>
                             <h2 class="text-xl font-bold text-slate-800 dark:text-white">Integrasi Google Apps Script (Spreadsheet)</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Hubungkan GuruSmart dengan Google Sheets untuk menyimpan & menyinkronkan seluruh data harian secara online</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Hubungkan GuruSmart dengan Google Sheets untuk menyimpan & menyinkronkan seluruh data harian secara online dan realtime antar perangkat</p>
                         </div>
                     </div>
 
@@ -1035,11 +1047,11 @@
                                 <i class="fa-solid fa-network-wired"></i>
                                 <span>Tes Koneksi Backend</span>
                             </button>
-                            <button onclick="pullDataFromGas()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2">
+                            <button onclick="pullDataFromGas(false)" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2">
                                 <i class="fa-solid fa-cloud-arrow-down"></i>
                                 <span>Tarik Data dari Spreadsheet</span>
                             </button>
-                            <button onclick="syncDataToGas()" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2">
+                            <button onclick="syncDataToGas(false)" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2">
                                 <i class="fa-solid fa-cloud-arrow-up"></i>
                                 <span>Kirim Data Lokal ke Spreadsheet</span>
                             </button>
@@ -1066,7 +1078,7 @@
                                 </ul>
                             </li>
                             <li>Klik **Terapkan (Deploy)**, beri izin akses Google (*Allow*), lalu salin **URL Aplikasi Web** yang dihasilkan.</li>
-                            <li>Tempelkan URL tersebut pada kolom input di atas dan klik **Simpan URL & Tes Koneksi**.</li>
+                            <li>Tempelkan URL tersebut pada kolom input di atas dan klik **Simpan URL**. Semua perangkat yang menggunakan URL ini akan otomatis sinkron!</li>
                         </ol>
                     </div>
 
@@ -1274,6 +1286,7 @@
             theme: localStorage.getItem('guru_theme') || 'light',
             editingIndex: null,
             deletePending: { entity: null, idx: null },
+            isSyncing: false,
             data: {
                 Guru: [
                     { id: 'G01', nama: 'Heri Cahyono, S.Pd.', username: 'tjahjono', password: 'heriganteng', mapel: 'Pendidikan Pancasila, Informatika & KKA' }
@@ -1292,21 +1305,30 @@
 
         let dashChart = null;
         let presensiKelasChartInstance = null;
+        let autoSyncTimer = null;
 
-        // Load local DB or initialize empty state
+        // Load local DB while preserving all user-imported master data and entries
         const savedData = localStorage.getItem('guru_local_db');
         if (savedData) {
             try {
                 const parsed = JSON.parse(savedData);
-                parsed.Guru = [
-                    { id: 'G01', nama: 'Heri Cahyono, S.Pd.', username: 'tjahjono', password: 'heriganteng', mapel: 'Pendidikan Pancasila, Informatika & KKA' }
-                ];
+                if (!parsed.Guru || parsed.Guru.length === 0) {
+                    parsed.Guru = [
+                        { id: 'G01', nama: 'Heri Cahyono, S.Pd.', username: 'tjahjono', password: 'heriganteng', mapel: 'Pendidikan Pancasila, Informatika & KKA' }
+                    ];
+                }
                 if (!parsed.Mapel || parsed.Mapel.length === 0) {
                     parsed.Mapel = [
                         { id: 'M01', nama: 'Pendidikan Pancasila', mapelGroup: 'Pendidikan Pancasila' },
                         { id: 'M02', nama: 'Informatika dan KKA', mapelGroup: 'Informatika & KKA' }
                     ];
                 }
+                if (!parsed.Murid) parsed.Murid = [];
+                if (!parsed.Kelas) parsed.Kelas = [];
+                if (!parsed.Presensi) parsed.Presensi = [];
+                if (!parsed.Nilai) parsed.Nilai = [];
+                if (!parsed.Jurnal) parsed.Jurnal = [];
+
                 STATE.data = parsed;
             } catch (e) {
                 console.error('Failed parsing local data', e);
@@ -1319,10 +1341,18 @@
             updateGasStatusBadge();
             renderGasCodePreview();
             initDateFields();
+            startAutoCloudSync();
 
             const hash = window.location.hash.replace('#', '');
             if (hash && STATE.currentUser) {
                 switchTab(hash);
+            }
+        });
+
+        // Trigger sync when user refocuses the tab / window across devices
+        window.addEventListener('focus', () => {
+            if (STATE.currentUser && STATE.gasUrl) {
+                autoSyncCloud(true);
             }
         });
 
@@ -1407,11 +1437,139 @@
             switchTab('login');
         }
 
+        function startAutoCloudSync() {
+            if (autoSyncTimer) clearInterval(autoSyncTimer);
+            // Auto sync cloud every 40 seconds silently
+            autoSyncTimer = setInterval(() => {
+                if (STATE.currentUser && STATE.gasUrl && !STATE.isSyncing) {
+                    autoSyncCloud(true);
+                }
+            }, 40000);
+        }
+
+        function autoSyncCloud(silent = true) {
+            if (!STATE.gasUrl || STATE.isSyncing) return;
+            STATE.isSyncing = true;
+            
+            const dot = document.getElementById('sync-dot-indicator');
+            if (dot) dot.classList.add('animate-ping');
+
+            apiCall('getData')
+                .then(res => {
+                    STATE.isSyncing = false;
+                    if (dot) dot.classList.remove('animate-ping');
+
+                    if (res && res.status === 'success' && res.data) {
+                        let updated = false;
+
+                        // Smart Merge Murid
+                        if (res.data.Murid && Array.isArray(res.data.Murid)) {
+                            const map = new Map();
+                            STATE.data.Murid.forEach(m => map.set(m.nis, m));
+                            res.data.Murid.forEach(m => {
+                                if (m.nis) map.set(m.nis, m);
+                            });
+                            STATE.data.Murid = Array.from(map.values());
+                            updated = true;
+                        }
+
+                        // Smart Merge Kelas
+                        if (res.data.Kelas && Array.isArray(res.data.Kelas)) {
+                            const map = new Map();
+                            STATE.data.Kelas.forEach(k => map.set(k.nama, k));
+                            res.data.Kelas.forEach(k => {
+                                if (k.nama) map.set(k.nama, k);
+                            });
+                            STATE.data.Kelas = Array.from(map.values());
+                            updated = true;
+                        }
+
+                        // Smart Merge Mapel
+                        if (res.data.Mapel && Array.isArray(res.data.Mapel)) {
+                            const map = new Map();
+                            STATE.data.Mapel.forEach(m => map.set(m.nama, m));
+                            res.data.Mapel.forEach(m => {
+                                if (m.nama) map.set(m.nama, m);
+                            });
+                            STATE.data.Mapel = Array.from(map.values());
+                            updated = true;
+                        }
+
+                        // Smart Merge Presensi
+                        if (res.data.Presensi && Array.isArray(res.data.Presensi)) {
+                            const map = new Map();
+                            STATE.data.Presensi.forEach(p => {
+                                const key = `${p.tanggal}_${p.kelas}_${p.namaMurid}_${p.pertemuan || 1}`;
+                                map.set(key, p);
+                            });
+                            res.data.Presensi.forEach(p => {
+                                const key = `${p.tanggal}_${p.kelas}_${p.namaMurid}_${p.pertemuan || 1}`;
+                                map.set(key, p);
+                            });
+                            STATE.data.Presensi = Array.from(map.values());
+                            updated = true;
+                        }
+
+                        // Smart Merge Nilai
+                        if (res.data.Nilai && Array.isArray(res.data.Nilai)) {
+                            const map = new Map();
+                            STATE.data.Nilai.forEach(n => {
+                                const key = `${n.tanggal}_${n.kelas}_${n.namaMurid}_${n.namaPenilaian}`;
+                                map.set(key, n);
+                            });
+                            res.data.Nilai.forEach(n => {
+                                const key = `${n.tanggal}_${n.kelas}_${n.namaMurid}_${n.namaPenilaian}`;
+                                map.set(key, n);
+                            });
+                            STATE.data.Nilai = Array.from(map.values());
+                            updated = true;
+                        }
+
+                        // Smart Merge Jurnal
+                        if (res.data.Jurnal && Array.isArray(res.data.Jurnal)) {
+                            const map = new Map();
+                            STATE.data.Jurnal.forEach(j => {
+                                const key = `${j.tanggal}_${j.jam}_${j.kelas}_${j.materi}`;
+                                map.set(key, j);
+                            });
+                            res.data.Jurnal.forEach(j => {
+                                const key = `${j.tanggal}_${j.jam}_${j.kelas}_${j.materi}`;
+                                map.set(key, j);
+                            });
+                            STATE.data.Jurnal = Array.from(map.values());
+                            updated = true;
+                        }
+
+                        if (updated) {
+                            saveLocalDb();
+                            populateSelects();
+                            if (STATE.activeTab === 'dashboard') renderDashboard();
+                            if (STATE.activeTab === 'master') renderMasterTable();
+                            if (STATE.activeTab === 'laporan') renderLaporanTable();
+                        }
+
+                        if (!silent) showToast('Sinkronisasi cloud antar perangkat berhasil!', 'success');
+                    }
+                })
+                .catch(() => {
+                    STATE.isSyncing = false;
+                    if (dot) dot.classList.remove('animate-ping');
+                    if (!silent) showToast('Gagal terhubung ke Spreadsheet', 'error');
+                });
+        }
+
         function handleLogin(e) {
             if (e) e.preventDefault();
             const uname = document.getElementById('login-username').value.trim();
             const pass = document.getElementById('login-password').value.trim();
             const selectedMode = document.getElementById('login-mode').value;
+            const loginGasUrl = document.getElementById('login-gas-url') ? document.getElementById('login-gas-url').value.trim() : '';
+
+            if (loginGasUrl) {
+                STATE.gasUrl = loginGasUrl;
+                localStorage.setItem('guru_gas_url', loginGasUrl);
+                updateGasStatusBadge();
+            }
 
             if (!uname || !pass) {
                 showToast('Mohon isi Username dan Password', 'error');
@@ -1423,7 +1581,7 @@
                 return;
             }
 
-            showLoading('Proses masuk...');
+            showLoading('Proses masuk & menyelaraskan data...');
 
             if (STATE.gasUrl) {
                 apiCall('login', { username: uname, password: pass })
@@ -1434,6 +1592,7 @@
                             localStorage.setItem('guru_user_session', JSON.stringify(STATE.currentUser));
                             setupLoggedInUi();
                             switchTab('dashboard');
+                            autoSyncCloud(false);
                             showToast(`Berhasil masuk sebagai Guru ${selectedMode}!`, 'success');
                         } else {
                             localLoginCheck(uname, pass);
@@ -1474,12 +1633,6 @@
             }
         }
 
-        function quickLoginDemo() {
-            document.getElementById('login-username').value = 'tjahjono';
-            document.getElementById('login-password').value = 'heriganteng';
-            handleLogin();
-        }
-
         function logout() {
             localStorage.removeItem('guru_user_session');
             STATE.currentUser = null;
@@ -1516,6 +1669,11 @@
             if (tabId === 'master') renderMasterTable();
             if (tabId === 'laporan') renderLaporanTable();
 
+            // Auto fetch sync when opening a tab
+            if (STATE.gasUrl && tabId !== 'login') {
+                autoSyncCloud(true);
+            }
+
             if (window.innerWidth < 768) {
                 const sidebar = document.getElementById('sidebar');
                 const overlay = document.getElementById('sidebar-overlay');
@@ -1538,7 +1696,6 @@
                 if (overlay) overlay.classList.toggle('hidden');
             }
 
-            // Trigger window resize event to force Chart.js and flex layouts to re-render smoothly
             setTimeout(() => {
                 window.dispatchEvent(new Event('resize'));
             }, 150);
@@ -1631,10 +1788,10 @@
             document.getElementById('stat-today-attendance').textContent = todayPres.length;
             document.getElementById('stat-today-journal').textContent = todayJurn.length;
 
-            // Render Today's Class Activity Breakdown Cards
+            // Render Today's Class Activity Breakdown Cards (Only classes with attendance today)
             renderTodayClassBreakdown(todayStr);
 
-            // Render Activity Chart with Daily / Monthly & Class Filter
+            // Render Activity Chart
             renderActivityChart();
 
             // Render Attendance Stacked Chart per Class
@@ -1647,16 +1804,26 @@
 
             const activeClasses = getActiveClasses();
 
-            if (activeClasses.length === 0) {
+            // Filter ONLY classes that have attendance entries today
+            const classesWithAttendanceToday = activeClasses.filter(k => {
+                const classPres = STATE.data.Presensi.filter(p => p.kelas === k.nama && p.tanggal === todayStr);
+                return classPres.length > 0;
+            });
+
+            if (classesWithAttendanceToday.length === 0) {
                 container.innerHTML = `
-                    <div class="col-span-full p-6 text-center text-slate-400 bg-slate-50 dark:bg-slate-700/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
-                        Belum ada kelas terdaftar. Tambahkan atau import kelas di menu Master Data.
+                    <div class="col-span-full p-8 text-center text-slate-400 bg-slate-50 dark:bg-slate-700/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+                        <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 flex items-center justify-center mx-auto mb-2 text-xl">
+                            <i class="fa-solid fa-calendar-day"></i>
+                        </div>
+                        <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Belum ada kelas yang diisi presensi hari ini.</p>
+                        <p class="text-xs text-slate-400 mt-1">Status harian hanya menampilkan kelas yang sudah diisi presensi, karena tidak setiap kelas ada jadwal di setiap harinya.</p>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = activeClasses.map(k => {
+            container.innerHTML = classesWithAttendanceToday.map(k => {
                 const classPres = STATE.data.Presensi.filter(p => p.kelas === k.nama && p.tanggal === todayStr);
                 const classJurn = STATE.data.Jurnal.filter(j => j.kelas === k.nama && j.tanggal === todayStr);
 
@@ -1681,7 +1848,7 @@
                                 <h4 class="font-bold text-sm text-slate-800 dark:text-white">${k.nama}</h4>
                                 <p class="text-xs text-slate-400">Wali: ${k.wali || '-'}</p>
                             </div>
-                            <span class="text-xs font-semibold text-slate-500">${totalStudentsInClass} Siswa</span>
+                            <span class="text-xs font-semibold text-slate-500">${totalStudentsInClass} Murid</span>
                         </div>
 
                         <!-- Presensi Status Today -->
@@ -2009,36 +2176,35 @@
                 });
             });
 
-            showLoading('Menyimpan presensi...');
+            showLoading('Menyimpan presensi & menyelaraskan...');
+
+            // Merge local
+            STATE.data.Presensi.push(...rows);
+            saveLocalDb();
 
             if (STATE.gasUrl) {
                 apiCall('savePresensi', { items: rows })
                     .then(res => {
                         hideLoading();
                         if (res.status === 'success') {
-                            STATE.data.Presensi.push(...rows);
-                            saveLocalDb();
                             showToast('Data presensi berhasil disimpan ke Spreadsheet!', 'success');
-                            renderDashboard();
                         } else {
-                            showToast('Gagal: ' + res.message, 'error');
+                            showToast('Tersimpan di lokal. Gagal ke cloud: ' + res.message, 'info');
                         }
+                        renderDashboard();
+                        autoSyncCloud(true);
                     })
                     .catch(() => {
                         hideLoading();
-                        STATE.data.Presensi.push(...rows);
-                        saveLocalDb();
-                        showToast('Disimpan di penyimpanan lokal', 'info');
+                        showToast('Presensi tersimpan di penyimpanan lokal', 'info');
                         renderDashboard();
                     });
             } else {
                 setTimeout(() => {
                     hideLoading();
-                    STATE.data.Presensi.push(...rows);
-                    saveLocalDb();
                     showToast('Data presensi berhasil disimpan (Lokal)', 'success');
                     renderDashboard();
-                }, 400);
+                }, 300);
             }
         }
 
@@ -2231,6 +2397,7 @@
             renderDashboard();
             closeEditPresensiModal();
             showToast('Presensi murid berhasil diperbarui!', 'success');
+            if (STATE.gasUrl) syncDataToGas(true);
         }
 
         function deletePresensiSingle(idx) {
@@ -2241,6 +2408,7 @@
             renderRiwayatPresensi();
             renderDashboard();
             showToast(`Data presensi "${nama}" berhasil dihapus`, 'info');
+            if (STATE.gasUrl) syncDataToGas(true);
         }
 
         function confirmClearAllPresensi() {
@@ -2264,6 +2432,7 @@
                 renderRiwayatPresensi();
                 renderDashboard();
                 showToast('Seluruh data presensi telah dikosongkan!', 'info');
+                if (STATE.gasUrl) syncDataToGas(true);
             } else if (entity === 'DeleteClassStudents') {
                 const targetClass = STATE.deletePending.className;
                 const prevCount = STATE.data.Murid.length;
@@ -2274,6 +2443,7 @@
                 renderMasterTable();
                 renderDashboard();
                 showToast(`Berhasil menghapus seluruh murid (${removedCount} murid) di kelas "${targetClass}"`, 'info');
+                if (STATE.gasUrl) syncDataToGas(true);
             } else if (entity && idx !== null && idx >= 0 && STATE.data[entity] && STATE.data[entity][idx]) {
                 const deletedItem = STATE.data[entity][idx];
                 const deletedName = deletedItem.nama || deletedItem.namaMurid || entity;
@@ -2284,6 +2454,7 @@
                 renderMasterTable();
                 renderDashboard();
                 showToast(`Data "${deletedName}" berhasil dihapus`, 'info');
+                if (STATE.gasUrl) syncDataToGas(true);
             }
             closeDeleteModal();
         }
@@ -2376,40 +2547,37 @@
             });
 
             if (invalid && rows.length === 0) {
-                showToast('Mohon isi nilai valid (0 - 100) pada field siswa', 'error');
+                showToast('Mohon isi nilai valid (0 - 100) pada field murid', 'error');
                 return;
             }
 
             showLoading('Menyimpan data nilai...');
+            STATE.data.Nilai.push(...rows);
+            saveLocalDb();
 
             if (STATE.gasUrl) {
                 apiCall('saveNilai', { items: rows })
                     .then(res => {
                         hideLoading();
                         if (res.status === 'success') {
-                            STATE.data.Nilai.push(...rows);
-                            saveLocalDb();
                             showToast('Data nilai berhasil disimpan ke Spreadsheet!', 'success');
-                            renderDashboard();
                         } else {
-                            showToast('Gagal: ' + res.message, 'error');
+                            showToast('Tersimpan di lokal. Gagal ke cloud', 'info');
                         }
+                        renderDashboard();
+                        autoSyncCloud(true);
                     })
                     .catch(() => {
                         hideLoading();
-                        STATE.data.Nilai.push(...rows);
-                        saveLocalDb();
                         showToast('Disimpan di penyimpanan lokal', 'info');
                         renderDashboard();
                     });
             } else {
                 setTimeout(() => {
                     hideLoading();
-                    STATE.data.Nilai.push(...rows);
-                    saveLocalDb();
                     showToast('Data nilai berhasil disimpan (Lokal)', 'success');
                     renderDashboard();
-                }, 400);
+                }, 300);
             }
         }
 
@@ -2434,26 +2602,25 @@
             };
 
             showLoading('Menyimpan jurnal mengajar...');
+            STATE.data.Jurnal.push(entry);
+            saveLocalDb();
 
             if (STATE.gasUrl) {
                 apiCall('saveJurnal', entry)
                     .then(res => {
                         hideLoading();
                         if (res.status === 'success') {
-                            STATE.data.Jurnal.push(entry);
-                            saveLocalDb();
                             showToast('Jurnal mengajar tersimpan ke Spreadsheet!', 'success');
-                            document.getElementById('form-jurnal').reset();
-                            initDateFields();
-                            renderDashboard();
                         } else {
-                            showToast('Gagal: ' + res.message, 'error');
+                            showToast('Tersimpan lokal', 'info');
                         }
+                        document.getElementById('form-jurnal').reset();
+                        initDateFields();
+                        renderDashboard();
+                        autoSyncCloud(true);
                     })
                     .catch(() => {
                         hideLoading();
-                        STATE.data.Jurnal.push(entry);
-                        saveLocalDb();
                         showToast('Jurnal tersimpan di penyimpanan lokal', 'info');
                         document.getElementById('form-jurnal').reset();
                         initDateFields();
@@ -2462,13 +2629,11 @@
             } else {
                 setTimeout(() => {
                     hideLoading();
-                    STATE.data.Jurnal.push(entry);
-                    saveLocalDb();
                     showToast('Jurnal mengajar tersimpan (Lokal)', 'success');
                     document.getElementById('form-jurnal').reset();
                     initDateFields();
                     renderDashboard();
-                }, 400);
+                }, 300);
             }
         }
 
@@ -2523,7 +2688,6 @@
             } else if (tab === 'murid') {
                 head.innerHTML = `<tr><th class="p-3">NIS</th><th class="p-3">Nama Murid</th><th class="p-3">Kelas</th><th class="p-3">L/P</th><th class="p-3">Mode Mapel</th><th class="p-3 text-center">Aksi</th></tr>`;
                 
-                // Populate class filter dropdown
                 const filterSelect = document.getElementById('master-murid-class-filter');
                 if (filterSelect) {
                     const activeClasses = getActiveClasses();
@@ -2545,7 +2709,6 @@
                     return;
                 }
 
-                // Group students by Class
                 const grouped = {};
                 muridList.forEach(m => {
                     const c = m.kelas || 'Tanpa Kelas';
@@ -2728,7 +2891,6 @@
                 }
             });
 
-            // Also update matching class in Kelas master data if present
             const activeMode = getActiveMode();
             const classObj = STATE.data.Kelas.find(k => k.nama === oldName && (k.mapelGroup === activeMode || !k.mapelGroup));
             if (classObj) {
@@ -2741,6 +2903,7 @@
             renderDashboard();
             closeBulkEditClassModal();
             showToast(`Berhasil memperbarui nama kelas untuk ${updatedCount} murid dari "${oldName}" menjadi "${newName}"`, 'success');
+            if (STATE.gasUrl) syncDataToGas(true);
         }
 
         function confirmDeleteClassGroup(className) {
@@ -2790,7 +2953,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold mb-1">Kelas *</label>
-                        <input type="text" id="m-murid-kelas" value="${data ? data.kelas : 'XII Usaha Layanan Pariwisata'}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
+                        <input type="text" id="m-murid-kelas" value="${data ? data.kelas : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold mb-1">Jenis Kelamin</label>
@@ -2871,6 +3034,7 @@
             renderDashboard();
             closeMasterModal();
             showToast('Data master berhasil disimpan!', 'success');
+            if (STATE.gasUrl) syncDataToGas(true);
         }
 
         function handleExcelImport(event) {
@@ -2925,11 +3089,11 @@
                         const nis = row[nisCol] ? String(row[nisCol]).trim() : `NIS-${i}`;
                         let kelas = kelasCol !== -1 && row[kelasCol] ? String(row[kelasCol]).trim() : '';
                         let jk = jkCol !== -1 && row[jkCol] ? String(row[jkCol]).trim().toUpperCase() : 'L';
-                        let wali = waliCol !== -1 && row[waliCol] ? String(row[waliCol]).trim() : 'Marjiranto, S.E., M.Pd.';
+                        let wali = waliCol !== -1 && row[waliCol] ? String(row[waliCol]).trim() : '';
 
                         if (!nama || nama.toLowerCase().includes('mengetahui') || nama.toLowerCase().includes('wali kelas') || nama.toLowerCase().includes('nip')) continue;
 
-                        if (!kelas) kelas = 'XII Usaha Layanan Pariwisata';
+                        if (!kelas) kelas = 'XII Kuliner 4';
 
                         if (!STATE.data.Kelas.some(k => k.nama === kelas && (k.mapelGroup === activeMode || !k.mapelGroup))) {
                             STATE.data.Kelas.push({
@@ -2960,6 +3124,8 @@
                     hideLoading();
                     showToast(`Berhasil mengimpor ${addedMurid} murid & ${addedKelas} kelas baru!`, 'success');
 
+                    if (STATE.gasUrl) syncDataToGas(true);
+
                 } catch (err) {
                     hideLoading();
                     showToast('Gagal memproses file Excel: ' + err.message, 'error');
@@ -2973,9 +3139,8 @@
         function downloadExcelTemplate() {
             const data = [
                 ["NIS", "Nama Murid", "Kelas", "L/P", "Wali Kelas"],
-                ["1001", "Ahmad Fauzi", "XII ULP", "L", "Marjiranto, S.E., M.Pd."],
-                ["1002", "Siti Aminah", "XII ULP", "P", "Marjiranto, S.E., M.Pd."],
-                ["1003", "Budi Santoso", "XII ULP", "L", "Marjiranto, S.E., M.Pd."]
+                ["1001", "Ahmad Fauzi", "XII Kuliner 4", "L", "Wali Kelas A"],
+                ["1002", "Siti Aminah", "X Kuliner 3", "P", "Wali Kelas B"]
             ];
 
             const ws = XLSX.utils.aoa_to_sheet(data);
@@ -3139,6 +3304,7 @@
             localStorage.setItem('guru_gas_url', url);
             updateGasStatusBadge();
             showToast(url ? 'URL Backend GAS berhasil disimpan!' : 'Menggunakan Mode Lokal Browser', 'success');
+            if (url) autoSyncCloud(false);
         }
 
         function testGasConnection() {
@@ -3152,8 +3318,9 @@
                     hideLoading();
                     if (res && res.status === 'success') {
                         showToast('Koneksi berhasil! Server Google Apps Script online.', 'success');
+                        autoSyncCloud(false);
                     } else {
-                        showToast('Koneksi berhasil terhubung ke Apps Script!', 'success');
+                        showToast('Koneksi terhubung ke Apps Script!', 'success');
                     }
                 })
                 .catch(err => {
@@ -3162,15 +3329,15 @@
                 });
         }
 
-        function pullDataFromGas() {
+        function pullDataFromGas(silent = false) {
             if (!STATE.gasUrl) {
                 showToast('URL Google Apps Script belum dikonfigurasi!', 'error');
                 return;
             }
-            showLoading('Mendownload data dari Google Sheets...');
+            if (!silent) showLoading('Mendownload data dari Google Sheets...');
             apiCall('getData')
                 .then(res => {
-                    hideLoading();
+                    if (!silent) hideLoading();
                     if (res && res.status === 'success' && res.data) {
                         if (res.data.Guru && res.data.Guru.length > 0) STATE.data.Guru = res.data.Guru;
                         if (res.data.Murid) STATE.data.Murid = res.data.Murid;
@@ -3184,35 +3351,35 @@
                         populateSelects();
                         renderMasterTable();
                         renderDashboard();
-                        showToast('Seluruh data berhasil disinkronkan dari Google Sheets!', 'success');
+                        if (!silent) showToast('Seluruh data disinkronkan dari Google Sheets!', 'success');
                     } else {
-                        showToast('Gagal mengambil data: ' + (res.message || 'Respon kosong'), 'error');
+                        if (!silent) showToast('Gagal mengambil data: ' + (res.message || 'Respon kosong'), 'error');
                     }
                 })
                 .catch(err => {
-                    hideLoading();
-                    showToast('Gagal terhubung ke Google Sheets: ' + err, 'error');
+                    if (!silent) hideLoading();
+                    if (!silent) showToast('Gagal terhubung ke Google Sheets: ' + err, 'error');
                 });
         }
 
-        function syncDataToGas() {
+        function syncDataToGas(silent = false) {
             if (!STATE.gasUrl) {
-                showToast('URL Google Apps Script belum dikonfigurasi!', 'error');
+                if (!silent) showToast('URL Google Apps Script belum dikonfigurasi!', 'error');
                 return;
             }
-            showLoading('Mengunggah data lokal ke Google Sheets...');
+            if (!silent) showLoading('Mengunggah data ke Google Sheets...');
             apiCall('syncAll', { data: STATE.data })
                 .then(res => {
-                    hideLoading();
+                    if (!silent) hideLoading();
                     if (res && res.status === 'success') {
-                        showToast('Seluruh data lokal berhasil disimpan ke Google Sheets!', 'success');
+                        if (!silent) showToast('Seluruh data berhasil disimpan ke Google Sheets!', 'success');
                     } else {
-                        showToast('Gagal mengunggah data: ' + (res.message || 'Error'), 'error');
+                        if (!silent) showToast('Gagal mengunggah data: ' + (res.message || 'Error'), 'error');
                     }
                 })
                 .catch(err => {
-                    hideLoading();
-                    showToast('Gagal mengunggah data ke Google Sheets: ' + err, 'error');
+                    if (!silent) hideLoading();
+                    if (!silent) showToast('Gagal mengunggah data ke Google Sheets: ' + err, 'error');
                 });
         }
 
