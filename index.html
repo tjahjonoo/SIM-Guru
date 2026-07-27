@@ -1505,7 +1505,6 @@
 
         function startAutoCloudSync() {
             if (autoSyncTimer) clearInterval(autoSyncTimer);
-            // Auto sync cloud every 40 seconds silently
             autoSyncTimer = setInterval(() => {
                 if (STATE.currentUser && STATE.gasUrl && !STATE.isSyncing) {
                     autoSyncCloud(true);
@@ -1528,55 +1527,46 @@
                     if (res && res.status === 'success' && res.data) {
                         let updated = false;
 
-                        // Smart Merge Murid
                         if (res.data.Murid && Array.isArray(res.data.Murid)) {
                             const map = new Map();
                             STATE.data.Murid.forEach(m => map.set(m.nis, m));
-                            res.data.Murid.forEach(m => {
-                                if (m.nis) map.set(m.nis, m);
-                            });
+                            res.data.Murid.forEach(m => { if (m.nis) map.set(m.nis, m); });
                             STATE.data.Murid = Array.from(map.values());
                             updated = true;
                         }
 
-                        // Smart Merge Kelas
                         if (res.data.Kelas && Array.isArray(res.data.Kelas)) {
                             const map = new Map();
                             STATE.data.Kelas.forEach(k => map.set(k.nama, k));
-                            res.data.Kelas.forEach(k => {
-                                if (k.nama) map.set(k.nama, k);
-                            });
+                            res.data.Kelas.forEach(k => { if (k.nama) map.set(k.nama, k); });
                             STATE.data.Kelas = Array.from(map.values());
                             updated = true;
                         }
 
-                        // Smart Merge Mapel
                         if (res.data.Mapel && Array.isArray(res.data.Mapel)) {
                             const map = new Map();
                             STATE.data.Mapel.forEach(m => map.set(m.nama, m));
-                            res.data.Mapel.forEach(m => {
-                                if (m.nama) map.set(m.nama, m);
-                            });
+                            res.data.Mapel.forEach(m => { if (m.nama) map.set(m.nama, m); });
                             STATE.data.Mapel = Array.from(map.values());
                             updated = true;
                         }
 
-                        // Smart Merge Presensi
                         if (res.data.Presensi && Array.isArray(res.data.Presensi)) {
                             const map = new Map();
                             STATE.data.Presensi.forEach(p => {
-                                const key = `${p.tanggal}_${p.kelas}_${p.namaMurid}_${p.pertemuan || 1}`;
+                                const normTgl = normalizeDate(p.tanggal);
+                                const key = `${normTgl}_${p.kelas}_${p.namaMurid}_${p.pertemuan || 1}_${p.mapelGroup || p.mapel || ''}`;
                                 map.set(key, p);
                             });
                             res.data.Presensi.forEach(p => {
-                                const key = `${p.tanggal}_${p.kelas}_${p.namaMurid}_${p.pertemuan || 1}`;
+                                const normTgl = normalizeDate(p.tanggal);
+                                const key = `${normTgl}_${p.kelas}_${p.namaMurid}_${p.pertemuan || 1}_${p.mapelGroup || p.mapel || ''}`;
                                 map.set(key, p);
                             });
                             STATE.data.Presensi = Array.from(map.values());
                             updated = true;
                         }
 
-                        // Smart Merge Nilai
                         if (res.data.Nilai && Array.isArray(res.data.Nilai)) {
                             const map = new Map();
                             STATE.data.Nilai.forEach(n => {
@@ -1591,7 +1581,6 @@
                             updated = true;
                         }
 
-                        // Smart Merge Jurnal
                         if (res.data.Jurnal && Array.isArray(res.data.Jurnal)) {
                             const map = new Map();
                             STATE.data.Jurnal.forEach(j => {
@@ -1629,13 +1618,6 @@
             const uname = document.getElementById('login-username').value.trim();
             const pass = document.getElementById('login-password').value.trim();
             const selectedMode = document.getElementById('login-mode').value;
-            const loginGasUrl = document.getElementById('login-gas-url') ? document.getElementById('login-gas-url').value.trim() : '';
-
-            if (loginGasUrl) {
-                STATE.gasUrl = loginGasUrl;
-                localStorage.setItem('guru_gas_url', loginGasUrl);
-                updateGasStatusBadge();
-            }
 
             if (!uname || !pass) {
                 showToast('Mohon isi Username dan Password', 'error');
@@ -1664,7 +1646,7 @@
                             localLoginCheck(uname, pass);
                         }
                     })
-                    .catch(err => {
+                    .catch(() => {
                         hideLoading();
                         localLoginCheck(uname, pass);
                     });
@@ -1735,7 +1717,6 @@
             if (tabId === 'master') renderMasterTable();
             if (tabId === 'laporan') renderLaporanTable();
 
-            // Auto fetch sync when opening a tab
             if (STATE.gasUrl && tabId !== 'login') {
                 autoSyncCloud(true);
             }
@@ -1786,6 +1767,33 @@
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const day = String(d.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
+        }
+
+        function normalizeDate(d) {
+            if (!d) return '';
+            let str = String(d).trim();
+            if (str.includes('T')) str = str.split('T')[0];
+            if (str.includes(' ')) str = str.split(' ')[0];
+            if (str.includes('/')) {
+                const parts = str.split('/');
+                if (parts[0].length === 4) {
+                    return `${parts[0]}-${String(parts[1]).padStart(2, '0')}-${String(parts[2]).padStart(2, '0')}`;
+                } else if (parts[2] && parts[2].length === 4) {
+                    return `${parts[2]}-${String(parts[1]).padStart(2, '0')}-${String(parts[0]).padStart(2, '0')}`;
+                }
+            }
+            if (str.includes('-')) {
+                const parts = str.split('-');
+                if (parts[0].length === 4) {
+                    return `${parts[0]}-${String(parts[1]).padStart(2, '0')}-${String(parts[2]).padStart(2, '0')}`;
+                }
+            }
+            return str;
+        }
+
+        function isSameDate(d1, d2) {
+            if (!d1 || !d2) return false;
+            return normalizeDate(d1) === normalizeDate(d2);
         }
 
         function updateLiveClock() {
@@ -1851,24 +1859,21 @@
         function renderDashboard() {
             const activeClasses = getActiveClasses();
             const activeStudents = getActiveStudents();
+            const activeMode = getActiveMode();
 
             document.getElementById('stat-class-count').textContent = activeClasses.length;
             document.getElementById('stat-student-count').textContent = activeStudents.length;
 
             const todayStr = getTodayDateString();
-            const todayPres = STATE.data.Presensi.filter(p => p.tanggal === todayStr);
-            const todayJurn = STATE.data.Jurnal.filter(j => j.tanggal === todayStr);
+            const todayPres = STATE.data.Presensi.filter(p => isSameDate(p.tanggal, todayStr) && (!p.mapelGroup || p.mapelGroup === activeMode));
+            const todayJurn = STATE.data.Jurnal.filter(j => isSameDate(j.tanggal, todayStr) && (!j.mapelGroup || j.mapelGroup === activeMode));
 
-            document.getElementById('stat-today-attendance').textContent = todayPres.length;
+            const uniqueTodayStudents = new Set(todayPres.map(p => `${p.kelas}_${p.namaMurid}`));
+            document.getElementById('stat-today-attendance').textContent = uniqueTodayStudents.size;
             document.getElementById('stat-today-journal').textContent = todayJurn.length;
 
-            // Render Today's Class Activity Breakdown Cards (Only classes with attendance today)
             renderTodayClassBreakdown(todayStr);
-
-            // Render Activity Chart
             renderActivityChart();
-
-            // Render Attendance Stacked Chart per Class
             renderPresensiKelasChart();
         }
 
@@ -1877,11 +1882,16 @@
             if (!container) return;
 
             if (!todayStr) todayStr = getTodayDateString();
+            const activeMode = getActiveMode();
 
-            // Filter ALL attendance records for todayStr (with string normalization)
-            const todayPresensi = STATE.data.Presensi.filter(p => p && p.tanggal && String(p.tanggal).trim() === String(todayStr).trim());
+            const todayPresensi = STATE.data.Presensi.filter(p => {
+                if (!p || !p.tanggal) return false;
+                if (!isSameDate(p.tanggal, todayStr)) return false;
+                if (p.mapelGroup && p.mapelGroup !== activeMode) return false;
+                if (!p.mapelGroup && p.mapel && p.mapel !== activeMode && !p.mapel.includes(activeMode)) return false;
+                return true;
+            });
 
-            // Build map of classes to consider (active master classes + any class recorded in today's attendance)
             const classMap = new Map();
             const activeClasses = getActiveClasses();
             activeClasses.forEach(k => classMap.set(k.nama, k));
@@ -1894,7 +1904,6 @@
 
             const allClassesToConsider = Array.from(classMap.values());
 
-            // Filter ONLY classes that actually have attendance entries today
             const classesWithAttendanceToday = allClassesToConsider.filter(k => {
                 const classPres = todayPresensi.filter(p => p.kelas === k.nama);
                 return classPres.length > 0;
@@ -1906,7 +1915,7 @@
                         <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 flex items-center justify-center mx-auto mb-2 text-xl">
                             <i class="fa-solid fa-calendar-day"></i>
                         </div>
-                        <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Belum ada kelas yang diisi presensi hari ini.</p>
+                        <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Belum ada kelas yang diisi presensi hari ini untuk ${activeMode}.</p>
                         <p class="text-xs text-slate-400 mt-1">Status harian hanya menampilkan kelas yang sudah diisi presensi, karena tidak setiap kelas ada jadwal di setiap harinya.</p>
                     </div>
                 `;
@@ -1914,10 +1923,17 @@
             }
 
             container.innerHTML = classesWithAttendanceToday.map(k => {
-                const classPres = todayPresensi.filter(p => p.kelas === k.nama);
-                const classJurn = STATE.data.Jurnal.filter(j => j.kelas === k.nama && String(j.tanggal).trim() === String(todayStr).trim());
+                const rawClassPres = todayPresensi.filter(p => p.kelas === k.nama);
 
-                const totalStudentsInClass = STATE.data.Murid.filter(m => m.kelas === k.nama).length || classPres.length;
+                const studentMap = new Map();
+                rawClassPres.forEach(p => {
+                    studentMap.set(p.namaMurid, p);
+                });
+                const classPres = Array.from(studentMap.values());
+
+                const classJurn = STATE.data.Jurnal.filter(j => j.kelas === k.nama && isSameDate(j.tanggal, todayStr) && (!j.mapelGroup || j.mapelGroup === activeMode));
+
+                const totalStudentsInClass = STATE.data.Murid.filter(m => m.kelas === k.nama && (!m.mapelGroup || m.mapelGroup === activeMode || m.mapelGroup === 'Semua')).length || classPres.length;
                 const hadirCount = classPres.filter(p => p.status === 'Hadir').length;
                 const izinCount = classPres.filter(p => p.status === 'Izin').length;
                 const sakitCount = classPres.filter(p => p.status === 'Sakit').length;
@@ -1941,7 +1957,6 @@
                             <span class="text-xs font-semibold text-slate-500">${totalStudentsInClass} Murid</span>
                         </div>
 
-                        <!-- Presensi Status Today -->
                         <div>
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Presensi Hari Ini:</span>
@@ -1957,7 +1972,6 @@
                             ` : ''}
                         </div>
 
-                        <!-- Jurnal Status Today -->
                         <div class="pt-1 border-t border-slate-200/60 dark:border-slate-600/60">
                             <div class="flex items-center justify-between">
                                 <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Jurnal Mengajar:</span>
@@ -1982,6 +1996,7 @@
 
             const period = document.getElementById('dash-chart-period') ? document.getElementById('dash-chart-period').value : 'daily';
             const selectedClass = document.getElementById('dash-chart-class') ? document.getElementById('dash-chart-class').value : 'semua';
+            const activeMode = getActiveMode();
 
             let labels = [];
             let presData = [];
@@ -2012,9 +2027,9 @@
 
                 dateList.forEach(item => {
                     const dt = item.dateStr;
-                    presData.push(STATE.data.Presensi.filter(p => p.tanggal === dt && (selectedClass === 'semua' || p.kelas === selectedClass)).length);
-                    nilaiData.push(STATE.data.Nilai.filter(n => n.tanggal === dt && (selectedClass === 'semua' || n.kelas === selectedClass)).length);
-                    jurnalData.push(STATE.data.Jurnal.filter(j => j.tanggal === dt && (selectedClass === 'semua' || j.kelas === selectedClass)).length);
+                    presData.push(STATE.data.Presensi.filter(p => isSameDate(p.tanggal, dt) && (selectedClass === 'semua' || p.kelas === selectedClass) && (!p.mapelGroup || p.mapelGroup === activeMode)).length);
+                    nilaiData.push(STATE.data.Nilai.filter(n => isSameDate(n.tanggal, dt) && (selectedClass === 'semua' || n.kelas === selectedClass) && (!n.mapelGroup || n.mapelGroup === activeMode)).length);
+                    jurnalData.push(STATE.data.Jurnal.filter(j => isSameDate(j.tanggal, dt) && (selectedClass === 'semua' || j.kelas === selectedClass) && (!j.mapelGroup || j.mapelGroup === activeMode)).length);
                 });
 
             } else {
@@ -2024,21 +2039,21 @@
                 jurnalData = new Array(12).fill(0);
 
                 STATE.data.Presensi.forEach(p => {
-                    if (p.tanggal && (selectedClass === 'semua' || p.kelas === selectedClass)) {
+                    if (p.tanggal && (selectedClass === 'semua' || p.kelas === selectedClass) && (!p.mapelGroup || p.mapelGroup === activeMode)) {
                         const m = new Date(p.tanggal).getMonth();
                         if (!isNaN(m)) presData[m]++;
                     }
                 });
 
                 STATE.data.Nilai.forEach(n => {
-                    if (n.tanggal && (selectedClass === 'semua' || n.kelas === selectedClass)) {
+                    if (n.tanggal && (selectedClass === 'semua' || n.kelas === selectedClass) && (!n.mapelGroup || n.mapelGroup === activeMode)) {
                         const m = new Date(n.tanggal).getMonth();
                         if (!isNaN(m)) nilaiData[m]++;
                     }
                 });
 
                 STATE.data.Jurnal.forEach(j => {
-                    if (j.tanggal && (selectedClass === 'semua' || j.kelas === selectedClass)) {
+                    if (j.tanggal && (selectedClass === 'semua' || j.kelas === selectedClass) && (!j.mapelGroup || j.mapelGroup === activeMode)) {
                         const m = new Date(j.tanggal).getMonth();
                         if (!isNaN(m)) jurnalData[m]++;
                     }
@@ -2072,6 +2087,7 @@
 
             const activeClasses = getActiveClasses();
             const classLabels = activeClasses.map(k => k.nama);
+            const activeMode = getActiveMode();
 
             const hadirCounts = [];
             const izinCounts = [];
@@ -2079,7 +2095,7 @@
             const alphaCounts = [];
 
             classLabels.forEach(kNama => {
-                const classPresensi = STATE.data.Presensi.filter(p => p.kelas === kNama);
+                const classPresensi = STATE.data.Presensi.filter(p => p.kelas === kNama && (!p.mapelGroup || p.mapelGroup === activeMode));
                 hadirCounts.push(classPresensi.filter(p => p.status === 'Hadir').length);
                 izinCounts.push(classPresensi.filter(p => p.status === 'Izin').length);
                 sakitCounts.push(classPresensi.filter(p => p.status === 'Sakit').length);
@@ -2245,7 +2261,8 @@
             }
 
             const rows = [];
-            const timestamp = new Date().toISOString();
+            const now = new Date();
+            const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
             students.forEach(m => {
                 const selectedRadio = document.querySelector(`input[name="pres_${m.nis}"]:checked`);
@@ -2253,24 +2270,40 @@
                 const catatanInput = document.getElementById(`catatan_${m.nis}`);
                 const catatan = catatanInput ? catatanInput.value : '';
 
-                rows.push({
+                const row = {
                     timestamp: timestamp,
                     tanggal: tanggal,
                     guru: STATE.currentUser ? STATE.currentUser.nama : 'Guru',
                     mapel: mapel,
+                    mapelGroup: activeMode,
                     kelas: kelas,
                     pertemuan: pertemuan,
                     namaMurid: m.nama,
                     status: status,
                     catatan: catatan
-                });
+                };
+
+                const existingIdx = STATE.data.Presensi.findIndex(p => 
+                    isSameDate(p.tanggal, tanggal) && 
+                    p.kelas === kelas && 
+                    p.namaMurid === m.nama && 
+                    String(p.pertemuan || 1) === String(pertemuan || 1) &&
+                    (p.mapelGroup === activeMode || p.mapel === mapel)
+                );
+
+                if (existingIdx !== -1) {
+                    STATE.data.Presensi[existingIdx] = row;
+                } else {
+                    STATE.data.Presensi.push(row);
+                }
+
+                rows.push(row);
             });
 
             showLoading('Menyimpan presensi & menyelaraskan...');
 
-            // Merge local
-            STATE.data.Presensi.push(...rows);
             saveLocalDb();
+            renderDashboard();
 
             if (STATE.gasUrl) {
                 apiCall('savePresensi', { items: rows })
@@ -2348,6 +2381,7 @@
             }
             const targetDate = dateInput ? dateInput.value : getTodayDateString();
             const filterClass = document.getElementById('today-pres-kelas') ? document.getElementById('today-pres-kelas').value : 'semua';
+            const activeMode = getActiveMode();
 
             const classSelect = document.getElementById('today-pres-kelas');
             if (classSelect) {
@@ -2360,8 +2394,10 @@
 
             const todayRecords = STATE.data.Presensi.filter(p => {
                 if (!p || !p.tanggal) return false;
-                if (String(p.tanggal).trim() !== String(targetDate).trim()) return false;
+                if (!isSameDate(p.tanggal, targetDate)) return false;
                 if (filterClass !== 'semua' && p.kelas !== filterClass) return false;
+                if (p.mapelGroup && p.mapelGroup !== activeMode) return false;
+                if (!p.mapelGroup && p.mapel && p.mapel !== activeMode && !p.mapel.includes(activeMode)) return false;
                 return true;
             });
 
@@ -2380,15 +2416,19 @@
             if (!tbody) return;
 
             if (todayRecords.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada presensi yang terinput untuk tanggal ${targetDate}.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada presensi yang terinput untuk tanggal ${targetDate} pada mata pelajaran ${activeMode}.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = todayRecords.map(p => {
                 const realIdx = STATE.data.Presensi.indexOf(p);
+                const timeOnly = p.timestamp ? (p.timestamp.includes(' ') ? p.timestamp.split(' ')[1] : p.timestamp) : '-';
                 return `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                        <td class="p-3 text-xs font-medium">${p.tanggal}</td>
+                        <td class="p-3 text-xs font-medium">
+                            <div>${p.tanggal}</div>
+                            <div class="text-[10px] text-slate-400 font-mono">${timeOnly}</div>
+                        </td>
                         <td class="p-3 text-xs text-center font-semibold">${p.pertemuan || 1}</td>
                         <td class="p-3 text-xs font-semibold text-primary-600 dark:text-primary-400">${p.kelas}</td>
                         <td class="p-3 text-xs font-bold text-slate-800 dark:text-slate-100">${p.namaMurid}</td>
@@ -2429,7 +2469,13 @@
             let maxMeetingsFound = 0;
 
             const rowsHtml = students.map((m, idx) => {
-                const studentPres = STATE.data.Presensi.filter(p => p.namaMurid === m.nama || (p.kelas === m.kelas && p.namaMurid === m.nama));
+                const studentPres = STATE.data.Presensi.filter(p => {
+                    const isStudentMatch = p.namaMurid === m.nama || (p.kelas === m.kelas && p.namaMurid === m.nama);
+                    if (!isStudentMatch) return false;
+                    if (p.mapelGroup && p.mapelGroup !== activeMode) return false;
+                    if (!p.mapelGroup && p.mapel && p.mapel !== activeMode && !p.mapel.includes(activeMode)) return false;
+                    return true;
+                });
                 const hadir = studentPres.filter(p => p.status === 'Hadir').length;
                 const izin = studentPres.filter(p => p.status === 'Izin').length;
                 const sakit = studentPres.filter(p => p.status === 'Sakit').length;
@@ -2491,23 +2537,30 @@
             const tbody = document.getElementById('table-riwayat-presensi-body');
             const filterTgl = document.getElementById('riwayat-pres-tanggal') ? document.getElementById('riwayat-pres-tanggal').value : '';
             const filterKelas = document.getElementById('riwayat-pres-kelas') ? document.getElementById('riwayat-pres-kelas').value : 'semua';
+            const activeMode = getActiveMode();
 
             const filtered = STATE.data.Presensi.filter(p => {
-                if (filterTgl && p.tanggal !== filterTgl) return false;
+                if (filterTgl && !isSameDate(p.tanggal, filterTgl)) return false;
                 if (filterKelas !== 'semua' && p.kelas !== filterKelas) return false;
+                if (p.mapelGroup && p.mapelGroup !== activeMode) return false;
+                if (!p.mapelGroup && p.mapel && p.mapel !== activeMode && !p.mapel.includes(activeMode)) return false;
                 return true;
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada riwayat presensi yang tersimpan sesuai filter.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada riwayat presensi yang tersimpan sesuai filter untuk ${activeMode}.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = filtered.map(p => {
                 const realIdx = STATE.data.Presensi.indexOf(p);
+                const timeOnly = p.timestamp ? (p.timestamp.includes(' ') ? p.timestamp.split(' ')[1] : p.timestamp) : '-';
                 return `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                        <td class="p-3 text-xs font-medium">${p.tanggal}</td>
+                        <td class="p-3 text-xs font-medium">
+                            <div>${p.tanggal}</div>
+                            <div class="text-[10px] text-slate-400 font-mono">${timeOnly}</div>
+                        </td>
                         <td class="p-3 text-xs text-center font-semibold">${p.pertemuan || 1}</td>
                         <td class="p-3 text-xs font-semibold text-primary-600 dark:text-primary-400">${p.kelas}</td>
                         <td class="p-3 text-xs font-bold text-slate-800 dark:text-slate-100">${p.namaMurid}</td>
@@ -2693,6 +2746,7 @@
                         tanggal: tanggal,
                         guru: STATE.currentUser ? STATE.currentUser.nama : 'Guru',
                         mapel: mapel,
+                        mapelGroup: activeMode,
                         kelas: kelas,
                         jenisPenilaian: jenis,
                         namaPenilaian: namaPenilaian,
@@ -2740,6 +2794,7 @@
         function saveJurnal(e) {
             e.preventDefault();
 
+            const activeMode = getActiveMode();
             const entry = {
                 timestamp: new Date().toISOString(),
                 tanggal: document.getElementById('jurnal-tanggal').value,
@@ -2747,6 +2802,7 @@
                 kelas: document.getElementById('jurnal-kelas').value,
                 guru: STATE.currentUser ? STATE.currentUser.nama : 'Guru',
                 mapel: document.getElementById('jurnal-mapel').value,
+                mapelGroup: activeMode,
                 materi: document.getElementById('jurnal-materi').value.trim(),
                 tujuan: document.getElementById('jurnal-tujuan').value.trim(),
                 aktivitas: document.getElementById('jurnal-aktivitas').value.trim(),
@@ -2785,7 +2841,7 @@
             } else {
                 setTimeout(() => {
                     hideLoading();
-                    showToast('Jurnal mengajar tersimpan (Lokal)', 'success');
+                    showToast('Jurnal mengajar berhasil disimpan (Lokal)', 'success');
                     document.getElementById('form-jurnal').reset();
                     initDateFields();
                     renderDashboard();
@@ -2793,29 +2849,117 @@
             }
         }
 
+        function openAddMasterModal() {
+            STATE.editingIndex = null;
+            document.getElementById('modal-master-title').textContent = `Tambah Master ${STATE.activeMasterTab.toUpperCase()}`;
+            renderMasterModalFields();
+            document.getElementById('modal-master').classList.remove('hidden');
+        }
+
+        function openEditMasterModal(idx) {
+            STATE.editingIndex = idx;
+            document.getElementById('modal-master-title').textContent = `Edit Master ${STATE.activeMasterTab.toUpperCase()}`;
+            const key = STATE.activeMasterTab.charAt(0).toUpperCase() + STATE.activeMasterTab.slice(1);
+            renderMasterModalFields(STATE.data[key] ? STATE.data[key][idx] : {});
+            document.getElementById('modal-master').classList.remove('hidden');
+        }
+
+        function closeMasterModal() {
+            document.getElementById('modal-master').classList.add('hidden');
+        }
+
         function switchMasterTab(tab) {
             STATE.activeMasterTab = tab;
-            ['guru', 'murid', 'kelas', 'mapel'].forEach(t => {
+            const tabs = ['guru', 'murid', 'kelas', 'mapel'];
+            tabs.forEach(t => {
                 const btn = document.getElementById(`btn-master-${t}`);
                 if (btn) {
-                    if (t === tab) {
-                        btn.className = 'px-3.5 py-2 rounded-xl font-semibold bg-white dark:bg-slate-600 text-primary-600 dark:text-white shadow-sm transition';
-                    } else {
-                        btn.className = 'px-3.5 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition';
-                    }
+                    btn.className = t === tab 
+                        ? 'px-3.5 py-2 rounded-xl font-semibold bg-white dark:bg-slate-600 text-primary-600 dark:text-white shadow-sm transition'
+                        : 'px-3.5 py-2 rounded-xl font-semibold text-slate-600 dark:text-slate-300 transition';
                 }
             });
 
-            const groupControls = document.getElementById('master-murid-group-controls');
-            if (groupControls) {
-                if (tab === 'murid') groupControls.classList.remove('hidden');
-                else groupControls.classList.add('hidden');
+            const muridControls = document.getElementById('master-murid-group-controls');
+            if (muridControls) {
+                if (tab === 'murid') muridControls.classList.remove('hidden');
+                else muridControls.classList.add('hidden');
             }
 
-            const labelMap = { guru: 'Guru', murid: 'Murid', kelas: 'Kelas', mapel: 'Mata Pelajaran' };
-            const labelEl = document.getElementById('btn-add-master-label');
-            if (labelEl) labelEl.textContent = `Tambah Data ${labelMap[tab]}`;
+            const labelBtn = document.getElementById('btn-add-master-label');
+            if (labelBtn) labelBtn.textContent = `Tambah Data ${tab.charAt(0).toUpperCase() + tab.slice(1)}`;
 
+            renderMasterTable();
+        }
+
+        function renderMasterModalFields(data = {}) {
+            const container = document.getElementById('master-form-fields');
+            if (!container) return;
+
+            const tab = STATE.activeMasterTab;
+            if (tab === 'guru') {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Nama Guru *</label>
+                        <input type="text" id="m-guru-nama" value="${data.nama || ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Username *</label>
+                        <input type="text" id="m-guru-user" value="${data.username || ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Mata Pelajaran *</label>
+                        <input type="text" id="m-guru-mapel" value="${data.mapel || ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                    </div>
+                `;
+            } else if (tab === 'murid') {
+                const activeClasses = getActiveClasses();
+                const classOptions = activeClasses.map(k => `<option value="${k.nama}" ${data.kelas === k.nama ? 'selected' : ''}>${k.nama}</option>`).join('');
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">NIS / No. Induk *</label>
+                        <input type="text" id="m-murid-nis" value="${data.nis || ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Nama Murid *</label>
+                        <input type="text" id="m-murid-nama" value="${data.nama || ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Kelas *</label>
+                        <select id="m-murid-kelas" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                            ${classOptions || '<option value="XII Kuliner 4">XII Kuliner 4</option>'}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Jenis Kelamin *</label>
+                        <select id="m-murid-jk" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                            <option value="L" ${data.jk === 'L' ? 'selected' : ''}>Laki-laki (L)</option>
+                            <option value="P" ${data.jk === 'P' ? 'selected' : ''}>Perempuan (P)</option>
+                        </select>
+                    </div>
+                `;
+            } else if (tab === 'kelas') {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Nama Kelas *</label>
+                        <input type="text" id="m-kelas-nama" value="${data.nama || ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm" placeholder="Contoh: XII Kuliner 4">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Wali Kelas</label>
+                        <input type="text" id="m-kelas-wali" value="${data.wali || ''}" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                    </div>
+                `;
+            } else if (tab === 'mapel') {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Nama Mata Pelajaran *</label>
+                        <input type="text" id="m-mapel-nama" value="${data.nama || ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                    </div>
+                `;
+            }
+        }
+
+        function filterMasterTable() {
             renderMasterTable();
         }
 
@@ -2825,92 +2969,101 @@
             if (!head || !body) return;
 
             const tab = STATE.activeMasterTab;
+            const searchVal = document.getElementById('master-search-input') ? document.getElementById('master-search-input').value.toLowerCase().trim() : '';
+            const filterClass = document.getElementById('master-murid-class-filter') ? document.getElementById('master-murid-class-filter').value : 'semua';
             const activeMode = getActiveMode();
 
-            if (tab === 'guru') {
-                head.innerHTML = `<tr><th class="p-3">ID</th><th class="p-3">Nama Guru</th><th class="p-3">Username</th><th class="p-3">Mata Pelajaran</th><th class="p-3 text-center">Aksi</th></tr>`;
-                body.innerHTML = STATE.data.Guru.map((g, idx) => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                        <td class="p-3 font-mono text-xs">${g.id || 'G' + idx}</td>
-                        <td class="p-3 font-medium">${g.nama}</td>
-                        <td class="p-3 text-xs font-mono">${g.username}</td>
-                        <td class="p-3 text-xs">${g.mapel}</td>
-                        <td class="p-3 text-center space-x-2">
-                            <button onclick="editMasterItem('Guru', ${idx})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteMasterItem('Guru', ${idx})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `).join('');
-            } else if (tab === 'murid') {
-                head.innerHTML = `<tr><th class="p-3">NIS</th><th class="p-3">Nama Murid</th><th class="p-3">Kelas</th><th class="p-3">L/P</th><th class="p-3">Mode Mapel</th><th class="p-3 text-center">Aksi</th></tr>`;
-                
-                const filterSelect = document.getElementById('master-murid-class-filter');
-                if (filterSelect) {
+            if (tab === 'murid') {
+                const filterEl = document.getElementById('master-murid-class-filter');
+                if (filterEl) {
                     const activeClasses = getActiveClasses();
-                    const currentVal = filterSelect.value || 'semua';
-                    const classOpts = activeClasses.map(k => `<option value="${k.nama}">${k.nama}</option>`).join('');
-                    filterSelect.innerHTML = '<option value="semua">-- Semua Kelas --</option>' + classOpts;
-                    filterSelect.value = activeClasses.some(k => k.nama === currentVal) ? currentVal : 'semua';
+                    const options = activeClasses.map(k => `<option value="${k.nama}">${k.nama}</option>`).join('');
+                    const curVal = filterEl.value || 'semua';
+                    filterEl.innerHTML = '<option value="semua">-- Semua Kelas --</option>' + options;
+                    filterEl.value = curVal;
                 }
+            }
 
-                const selectedFilterClass = filterSelect ? filterSelect.value : 'semua';
-
-                let muridList = getActiveStudents();
-                if (selectedFilterClass !== 'semua') {
-                    muridList = muridList.filter(m => m.kelas === selectedFilterClass);
-                }
-
-                if (muridList.length === 0) {
-                    body.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada murid terdaftar untuk mode ${activeMode} ${selectedFilterClass !== 'semua' ? 'di kelas ' + selectedFilterClass : ''}</td></tr>`;
+            if (tab === 'guru') {
+                head.innerHTML = `<tr><th class="p-3 w-12 text-center">No</th><th class="p-3">ID</th><th class="p-3">Nama Guru</th><th class="p-3">Username</th><th class="p-3">Mapel</th><th class="p-3 text-center">Aksi</th></tr>`;
+                let items = STATE.data.Guru.filter(g => !searchVal || (g.nama && g.nama.toLowerCase().includes(searchVal)) || (g.username && g.username.toLowerCase().includes(searchVal)));
+                
+                if (items.length === 0) {
+                    body.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data guru.</td></tr>`;
                     return;
                 }
 
-                const grouped = {};
-                muridList.forEach(m => {
-                    const c = m.kelas || 'Tanpa Kelas';
-                    if (!grouped[c]) grouped[c] = [];
-                    grouped[c].push(m);
+                body.innerHTML = items.map((g, idx) => {
+                    const realIdx = STATE.data.Guru.indexOf(g);
+                    return `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                            <td class="p-3 text-center text-slate-400 text-xs">${idx + 1}</td>
+                            <td class="p-3 font-mono text-xs">${g.id}</td>
+                            <td class="p-3 font-bold text-xs text-slate-800 dark:text-slate-100">${g.nama}</td>
+                            <td class="p-3 font-mono text-xs">${g.username}</td>
+                            <td class="p-3 text-xs text-slate-500">${g.mapel}</td>
+                            <td class="p-3 text-center space-x-1">
+                                <button onclick="openEditMasterModal(${realIdx})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteMasterItem('Guru', ${realIdx})" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } else if (tab === 'murid') {
+                head.innerHTML = `<tr><th class="p-3 w-12 text-center">No</th><th class="p-3">NIS</th><th class="p-3">Nama Murid</th><th class="p-3 text-center">L/P</th><th class="p-3">Kelas</th><th class="p-3 text-center">Aksi</th></tr>`;
+                
+                let students = STATE.data.Murid.filter(m => (!m.mapelGroup || m.mapelGroup === activeMode || m.mapelGroup === 'Semua'));
+                if (filterClass !== 'semua') {
+                    students = students.filter(m => m.kelas === filterClass);
+                }
+                if (searchVal) {
+                    students = students.filter(m => (m.nama && m.nama.toLowerCase().includes(searchVal)) || (m.nis && m.nis.toLowerCase().includes(searchVal)) || (m.kelas && m.kelas.toLowerCase().includes(searchVal)));
+                }
+
+                if (students.length === 0) {
+                    body.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data murid terdaftar untuk ${activeMode}.</td></tr>`;
+                    return;
+                }
+
+                const grouped = new Map();
+                students.forEach(s => {
+                    const k = s.kelas || 'Tanpa Kelas';
+                    if (!grouped.has(k)) grouped.set(k, []);
+                    grouped.get(k).push(s);
                 });
 
                 let html = '';
-                Object.keys(grouped).forEach(className => {
-                    const classStudents = grouped[className];
+                grouped.forEach((list, className) => {
                     html += `
-                        <tr class="bg-slate-100/80 dark:bg-slate-700/80 border-y border-slate-200 dark:border-slate-600 font-bold text-xs text-slate-700 dark:text-slate-200">
+                        <tr class="bg-primary-50/70 dark:bg-slate-700/80 text-primary-900 dark:text-primary-100 font-bold text-xs border-y border-primary-100 dark:border-slate-600">
                             <td colspan="4" class="p-3">
-                                <div class="flex items-center space-x-2">
-                                    <i class="fa-solid fa-graduation-cap text-primary-600 dark:text-primary-400"></i>
-                                    <span class="text-sm font-bold">${className}</span>
-                                    <span class="px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-300 text-xs font-semibold">${classStudents.length} Murid</span>
-                                </div>
+                                <i class="fa-solid fa-graduation-cap mr-2 text-primary-600 dark:text-primary-400"></i>
+                                Kelas: ${className} <span class="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-primary-200/60 dark:bg-slate-600 text-primary-800 dark:text-slate-200 font-semibold">${list.length} Murid</span>
                             </td>
-                            <td colspan="2" class="p-3 text-right">
-                                <div class="inline-flex items-center space-x-2">
-                                    <button onclick="openBulkEditClassModal('${className}')" class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 hover:bg-blue-200 transition text-xs font-semibold flex items-center space-x-1" title="Ubah nama kelas untuk semua murid ini">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                        <span>Edit Kelas</span>
-                                    </button>
-                                    <button onclick="confirmDeleteClassGroup('${className}')" class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 hover:bg-rose-200 transition text-xs font-semibold flex items-center space-x-1" title="Hapus seluruh murid di kelas ini">
-                                        <i class="fa-solid fa-trash"></i>
-                                        <span>Hapus 1 Kelas</span>
-                                    </button>
-                                </div>
+                            <td colspan="2" class="p-3 text-right space-x-2">
+                                <button onclick="openBulkEditClassModal('${className}')" class="px-2.5 py-1 text-[11px] font-semibold bg-white dark:bg-slate-800 text-primary-700 dark:text-primary-300 rounded-lg shadow-xs hover:bg-primary-100 transition">
+                                    <i class="fa-solid fa-pen-to-square mr-1"></i> Edit Kelas
+                                </button>
+                                <button onclick="confirmDeleteClassStudents('${className}')" class="px-2.5 py-1 text-[11px] font-semibold bg-rose-600 text-white rounded-lg shadow-xs hover:bg-rose-700 transition">
+                                    <i class="fa-solid fa-trash-can mr-1"></i> Hapus 1 Kelas
+                                </button>
                             </td>
                         </tr>
                     `;
 
-                    classStudents.forEach(m => {
-                        const realIndex = STATE.data.Murid.indexOf(m);
+                    list.forEach((m, idx) => {
+                        const realIdx = STATE.data.Murid.indexOf(m);
                         html += `
                             <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                                <td class="p-3 text-center text-slate-400 text-xs">${idx + 1}</td>
                                 <td class="p-3 font-mono text-xs">${m.nis}</td>
-                                <td class="p-3 font-medium text-slate-800 dark:text-slate-100 text-xs">${m.nama}</td>
-                                <td class="p-3 text-xs">${m.kelas}</td>
-                                <td class="p-3 text-xs font-semibold">${m.jk}</td>
-                                <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-300 font-semibold">${m.mapelGroup || activeMode}</span></td>
-                                <td class="p-3 text-center space-x-2">
-                                    <button onclick="editMasterItem('Murid', ${realIndex})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg" title="Edit Murid Ini"><i class="fa-solid fa-pen"></i></button>
-                                    <button onclick="deleteMasterItem('Murid', ${realIndex})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg" title="Hapus Murid Ini"><i class="fa-solid fa-trash"></i></button>
+                                <td class="p-3 font-bold text-xs text-slate-800 dark:text-slate-100">${m.nama}</td>
+                                <td class="p-3 text-center text-xs font-semibold">${m.jk || 'L'}</td>
+                                <td class="p-3 text-xs text-slate-500">${m.kelas}</td>
+                                <td class="p-3 text-center space-x-1">
+                                    <button onclick="openEditMasterModal(${realIdx})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                                    <button onclick="deleteMasterItem('Murid', ${realIdx})" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>
                         `;
@@ -2918,98 +3071,76 @@
                 });
 
                 body.innerHTML = html;
+
             } else if (tab === 'kelas') {
-                head.innerHTML = `<tr><th class="p-3">ID</th><th class="p-3">Nama Kelas</th><th class="p-3">Wali Kelas</th><th class="p-3">Mode Mapel</th><th class="p-3 text-center">Aksi</th></tr>`;
-                const classList = getActiveClasses();
+                head.innerHTML = `<tr><th class="p-3 w-12 text-center">No</th><th class="p-3">ID</th><th class="p-3">Nama Kelas</th><th class="p-3">Wali Kelas</th><th class="p-3 text-center">Aksi</th></tr>`;
+                let items = STATE.data.Kelas.filter(k => (!k.mapelGroup || k.mapelGroup === activeMode || k.mapelGroup === 'Semua') && (!searchVal || (k.nama && k.nama.toLowerCase().includes(searchVal))));
 
-                if (classList.length === 0) {
-                    body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Belum ada kelas terdaftar untuk mode ${activeMode}</td></tr>`;
+                if (items.length === 0) {
+                    body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Belum ada data kelas untuk ${activeMode}.</td></tr>`;
                     return;
                 }
 
-                body.innerHTML = classList.map((k) => {
-                    const realIndex = STATE.data.Kelas.indexOf(k);
+                body.innerHTML = items.map((k, idx) => {
+                    const realIdx = STATE.data.Kelas.indexOf(k);
                     return `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                        <td class="p-3 font-mono text-xs">${k.id || 'K'}</td>
-                        <td class="p-3 font-medium">${k.nama}</td>
-                        <td class="p-3 text-xs">${k.wali}</td>
-                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-300 font-semibold">${k.mapelGroup || activeMode}</span></td>
-                        <td class="p-3 text-center space-x-2">
-                            <button onclick="editMasterItem('Kelas', ${realIndex})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteMasterItem('Kelas', ${realIndex})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                            <td class="p-3 text-center text-slate-400 text-xs">${idx + 1}</td>
+                            <td class="p-3 font-mono text-xs">${k.id}</td>
+                            <td class="p-3 font-bold text-xs text-slate-800 dark:text-slate-100">${k.nama}</td>
+                            <td class="p-3 text-xs text-slate-500">${k.wali || '-'}</td>
+                            <td class="p-3 text-center space-x-1">
+                                <button onclick="openEditMasterModal(${realIdx})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteMasterItem('Kelas', ${realIdx})" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
                 }).join('');
-            } else if (tab === 'mapel') {
-                head.innerHTML = `<tr><th class="p-3">ID</th><th class="p-3">Nama Mata Pelajaran</th><th class="p-3">Mode Mapel</th><th class="p-3 text-center">Aksi</th></tr>`;
-                const mapelList = getActiveMapel();
 
-                if (mapelList.length === 0) {
-                    body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Belum ada mata pelajaran terdaftar untuk mode ${activeMode}</td></tr>`;
+            } else if (tab === 'mapel') {
+                head.innerHTML = `<tr><th class="p-3 w-12 text-center">No</th><th class="p-3">ID</th><th class="p-3">Nama Mata Pelajaran</th><th class="p-3 text-center">Aksi</th></tr>`;
+                let items = STATE.data.Mapel.filter(m => (!m.mapelGroup || m.mapelGroup === activeMode || m.mapelGroup === 'Semua') && (!searchVal || (m.nama && m.nama.toLowerCase().includes(searchVal))));
+
+                if (items.length === 0) {
+                    body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Belum ada data mata pelajaran untuk ${activeMode}.</td></tr>`;
                     return;
                 }
 
-                body.innerHTML = mapelList.map((mp) => {
-                    const realIndex = STATE.data.Mapel.indexOf(mp);
+                body.innerHTML = items.map((m, idx) => {
+                    const realIdx = STATE.data.Mapel.indexOf(m);
                     return `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                        <td class="p-3 font-mono text-xs">${mp.id || 'M'}</td>
-                        <td class="p-3 font-medium">${mp.nama}</td>
-                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-300 font-semibold">${mp.mapelGroup || activeMode}</span></td>
-                        <td class="p-3 text-center space-x-2">
-                            <button onclick="editMasterItem('Mapel', ${realIndex})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteMasterItem('Mapel', ${realIndex})" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                            <td class="p-3 text-center text-slate-400 text-xs">${idx + 1}</td>
+                            <td class="p-3 font-mono text-xs">${m.id}</td>
+                            <td class="p-3 font-bold text-xs text-slate-800 dark:text-slate-100">${m.nama}</td>
+                            <td class="p-3 text-center space-x-1">
+                                <button onclick="openEditMasterModal(${realIdx})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteMasterItem('Mapel', ${realIdx})" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
                 }).join('');
             }
         }
 
-        function openAddMasterModal() {
-            STATE.editingIndex = null;
-            renderMasterFormFields();
-            const labelMap = { guru: 'Guru', murid: 'Murid', kelas: 'Kelas', mapel: 'Mata Pelajaran' };
-            const titleEl = document.getElementById('modal-master-title');
-            if (titleEl) titleEl.textContent = `Tambah Data ${labelMap[STATE.activeMasterTab]}`;
-            document.getElementById('modal-master').classList.remove('hidden');
-        }
-
-        function editMasterItem(entity, idx) {
-            STATE.editingIndex = idx;
-            const data = STATE.data[entity][idx];
-            renderMasterFormFields(entity, data);
-            const titleEl = document.getElementById('modal-master-title');
-            if (titleEl) titleEl.textContent = `Edit Data ${entity}`;
-            document.getElementById('modal-master').classList.remove('hidden');
-        }
-
         function deleteMasterItem(entity, idx) {
-            if (!STATE.data[entity] || !STATE.data[entity][idx]) return;
             STATE.deletePending = { entity: entity, idx: idx };
-            const name = STATE.data[entity][idx].nama || STATE.data[entity][idx].namaMurid || entity;
+            const item = STATE.data[entity] ? STATE.data[entity][idx] : null;
+            const name = item ? (item.nama || item.id || entity) : 'item ini';
             const textEl = document.getElementById('delete-confirm-text');
             if (textEl) {
-                textEl.textContent = `Apakah Anda yakin ingin menghapus data "${name}"?`;
+                textEl.textContent = `Apakah Anda yakin ingin menghapus data ${entity} "${name}"?`;
             }
             document.getElementById('modal-confirm-delete').classList.remove('hidden');
         }
 
-        function filterMasterTable() {
-            const searchInput = document.getElementById('master-search-input');
-            if (!searchInput) return;
-            const search = searchInput.value.toLowerCase();
-            const rows = document.querySelectorAll('#master-table-body tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(search)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+        function confirmDeleteClassStudents(className) {
+            STATE.deletePending = { entity: 'DeleteClassStudents', idx: -1, className: className };
+            const textEl = document.getElementById('delete-confirm-text');
+            if (textEl) {
+                textEl.textContent = `Apakah Anda yakin ingin menghapus SELURUH MURID yang terdaftar di kelas "${className}"? Action ini tidak dapat dibatalkan.`;
+            }
+            document.getElementById('modal-confirm-delete').classList.remove('hidden');
         }
 
         function openBulkEditClassModal(oldClassName) {
@@ -3047,97 +3178,19 @@
                 }
             });
 
-            const activeMode = getActiveMode();
-            const classObj = STATE.data.Kelas.find(k => k.nama === oldName && (k.mapelGroup === activeMode || !k.mapelGroup));
-            if (classObj) {
-                classObj.nama = newName;
-            }
+            STATE.data.Kelas.forEach(k => {
+                if (k.nama === oldName) {
+                    k.nama = newName;
+                }
+            });
 
             saveLocalDb();
             populateSelects();
             renderMasterTable();
             renderDashboard();
             closeBulkEditClassModal();
-            showToast(`Berhasil memperbarui nama kelas untuk ${updatedCount} murid dari "${oldName}" menjadi "${newName}"`, 'success');
+            showToast(`Berhasil memperbarui nama kelas "${oldName}" menjadi "${newName}" (${updatedCount} murid)`, 'success');
             if (STATE.gasUrl) syncDataToGas(true);
-        }
-
-        function confirmDeleteClassGroup(className) {
-            if (!className) return;
-            const count = STATE.data.Murid.filter(m => m.kelas === className).length;
-            STATE.deletePending = { entity: 'DeleteClassStudents', className: className };
-            const textEl = document.getElementById('delete-confirm-text');
-            if (textEl) {
-                textEl.textContent = `Apakah Anda yakin ingin MENGHAPUS SELURUH MURID (${count} murid) pada kelas "${className}"? Tindakan ini tidak dapat dibatalkan.`;
-            }
-            document.getElementById('modal-confirm-delete').classList.remove('hidden');
-        }
-
-        function closeMasterModal() {
-            document.getElementById('modal-master').classList.add('hidden');
-        }
-
-        function renderMasterFormFields(entityType = null, data = null) {
-            const tab = entityType ? entityType.toLowerCase() : STATE.activeMasterTab;
-            const container = document.getElementById('master-form-fields');
-            if (!container) return;
-
-            if (tab === 'guru') {
-                container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Nama Guru *</label>
-                        <input type="text" id="m-guru-nama" value="${data ? data.nama : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Username *</label>
-                        <input type="text" id="m-guru-user" value="${data ? data.username : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Mata Pelajaran</label>
-                        <input type="text" id="m-guru-mapel" value="${data ? data.mapel : 'Pendidikan Pancasila'}" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                `;
-            } else if (tab === 'murid') {
-                container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">NIS *</label>
-                        <input type="text" id="m-murid-nis" value="${data ? data.nis : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Nama Murid *</label>
-                        <input type="text" id="m-murid-nama" value="${data ? data.nama : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Kelas *</label>
-                        <input type="text" id="m-murid-kelas" value="${data ? data.kelas : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Jenis Kelamin</label>
-                        <select id="m-murid-jk" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                            <option value="L" ${data && data.jk === 'L' ? 'selected' : ''}>Laki-laki (L)</option>
-                            <option value="P" ${data && data.jk === 'P' ? 'selected' : ''}>Perempuan (P)</option>
-                        </select>
-                    </div>
-                `;
-            } else if (tab === 'kelas') {
-                container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Nama Kelas *</label>
-                        <input type="text" id="m-kelas-nama" value="${data ? data.nama : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Wali Kelas</label>
-                        <input type="text" id="m-kelas-wali" value="${data ? data.wali : ''}" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                `;
-            } else if (tab === 'mapel') {
-                container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Nama Mata Pelajaran *</label>
-                        <input type="text" id="m-mapel-nama" value="${data ? data.nama : ''}" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
-                    </div>
-                `;
-            }
         }
 
         function handleSaveMaster(e) {
@@ -3301,28 +3354,35 @@
 
             const ws = XLSX.utils.aoa_to_sheet(data);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "MasterData");
-            XLSX.writeFile(wb, "Template_Import_Master_GuruSmart.xlsx");
-            showToast("Template Excel berhasil diunduh!", "success");
+            XLSX.utils.book_append_sheet(wb, ws, "Template Murid");
+            XLSX.writeFile(wb, "Template_Import_Murid_GuruSmart.xlsx");
+            showToast('Template Excel berhasil diunduh', 'success');
         }
 
         function getFilteredLaporanData() {
             const kategori = document.getElementById('lap-kategori').value;
-            const kelas = document.getElementById('lap-kelas').value;
-            const mapel = document.getElementById('lap-mapel').value;
-            const search = document.getElementById('lap-search').value.toLowerCase();
+            const filterKelas = document.getElementById('lap-kelas').value;
+            const filterMapel = document.getElementById('lap-mapel').value;
+            const keyword = document.getElementById('lap-search').value.toLowerCase().trim();
+            const activeMode = getActiveMode();
 
-            let raw = [];
-            if (kategori === 'presensi') raw = STATE.data.Presensi;
-            else if (kategori === 'nilai') raw = STATE.data.Nilai;
-            else if (kategori === 'jurnal') raw = STATE.data.Jurnal;
+            let dataset = [];
 
-            return raw.filter(item => {
-                if (kelas !== 'semua' && item.kelas !== kelas) return false;
-                if (mapel !== 'semua' && item.mapel !== mapel) return false;
-                if (search) {
-                    const str = JSON.stringify(item).toLowerCase();
-                    if (!str.includes(search)) return false;
+            if (kategori === 'presensi') {
+                dataset = STATE.data.Presensi.filter(p => !p.mapelGroup || p.mapelGroup === activeMode);
+            } else if (kategori === 'nilai') {
+                dataset = STATE.data.Nilai.filter(n => !n.mapelGroup || n.mapelGroup === activeMode);
+            } else if (kategori === 'jurnal') {
+                dataset = STATE.data.Jurnal.filter(j => !j.mapelGroup || j.mapelGroup === activeMode);
+            }
+
+            return dataset.filter(item => {
+                if (filterKelas !== 'semua' && item.kelas !== filterKelas) return false;
+                if (filterMapel !== 'semua' && item.mapel !== filterMapel) return false;
+
+                if (keyword) {
+                    const rowString = Object.values(item).join(' ').toLowerCase();
+                    return rowString.includes(keyword);
                 }
                 return true;
             });
@@ -3387,7 +3447,8 @@
             if (status === 'Hadir') return 'bg-emerald-100 text-emerald-700';
             if (status === 'Izin') return 'bg-blue-100 text-blue-700';
             if (status === 'Sakit') return 'bg-amber-100 text-amber-700';
-            return 'bg-rose-100 text-rose-700';
+            if (status === 'Alpha') return 'bg-rose-100 text-rose-700';
+            return 'bg-slate-100 text-slate-700';
         }
 
         function exportToCSV() {
@@ -3397,7 +3458,7 @@
             const keys = Object.keys(data[0]);
             let csv = keys.join(',') + '\n';
             data.forEach(row => {
-                csv += keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`).join(',') + '\n';
+                csv += keys.map(k => `"${String(row[k] || '').replace(/"/g, '""')}"`).join(',') + '\n';
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -3479,7 +3540,7 @@
                         showToast('Koneksi terhubung ke Apps Script!', 'success');
                     }
                 })
-                .catch(err => {
+                .catch(() => {
                     hideLoading();
                     showToast('Gagal terhubung. Pastikan URL benar & Akses diset "Anyone".', 'error');
                 });
@@ -3674,7 +3735,7 @@ function doPost(e) {
       }
     } 
     else if (action === "savePresensi") {
-      var sheet = getOrCreateSheet(ss, "Presensi", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Pertemuan", "Nama Murid", "Status", "Catatan"]);
+      var sheet = getOrCreateSheet(ss, "Presensi", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Pertemuan", "Nama Murid", "Status", "Catatan", "MapelGroup"]);
       var items = data.items || [];
       items.forEach(function(item) {
         sheet.appendRow([
@@ -3686,13 +3747,14 @@ function doPost(e) {
           item.pertemuan,
           item.namaMurid,
           item.status,
-          item.catatan
+          item.catatan,
+          item.mapelGroup || ""
         ]);
       });
       response = { status: "success", count: items.length };
     }
     else if (action === "saveNilai") {
-      var sheet = getOrCreateSheet(ss, "Nilai", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Jenis Penilaian", "Nama Penilaian", "Nama Murid", "Nilai"]);
+      var sheet = getOrCreateSheet(ss, "Nilai", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Jenis Penilaian", "Nama Penilaian", "Nama Murid", "Nilai", "MapelGroup"]);
       var items = data.items || [];
       items.forEach(function(item) {
         sheet.appendRow([
@@ -3704,13 +3766,14 @@ function doPost(e) {
           item.jenisPenilaian,
           item.namaPenilaian,
           item.namaMurid,
-          item.nilai
+          item.nilai,
+          item.mapelGroup || ""
         ]);
       });
       response = { status: "success", count: items.length };
     }
     else if (action === "saveJurnal") {
-      var sheet = getOrCreateSheet(ss, "Jurnal", ["Timestamp", "Tanggal", "Jam", "Guru", "Mapel", "Kelas", "Materi", "Tujuan", "Aktivitas", "Metode", "Media", "Refleksi", "Catatan", "Status"]);
+      var sheet = getOrCreateSheet(ss, "Jurnal", ["Timestamp", "Tanggal", "Jam", "Guru", "Mapel", "Kelas", "Materi", "Tujuan", "Aktivitas", "Metode", "Media", "Refleksi", "Catatan", "Status", "MapelGroup"]);
       sheet.appendRow([
         data.timestamp,
         data.tanggal,
@@ -3725,7 +3788,8 @@ function doPost(e) {
         data.media,
         data.refleksi,
         data.catatan,
-        data.status
+        data.status,
+        data.mapelGroup || ""
       ]);
       response = { status: "success" };
     }
@@ -3737,9 +3801,9 @@ function doPost(e) {
           Murid: parseSheetData(getOrCreateSheet(ss, "Murid", ["NIS", "Nama Murid", "Kelas", "JK", "MapelGroup"]), ["nis", "nama", "kelas", "jk", "mapelGroup"]),
           Kelas: parseSheetData(getOrCreateSheet(ss, "Kelas", ["ID", "Nama Kelas", "Wali Kelas", "MapelGroup"]), ["id", "nama", "wali", "mapelGroup"]),
           Mapel: parseSheetData(getOrCreateSheet(ss, "Mapel", ["ID", "Nama Mapel", "MapelGroup"]), ["id", "nama", "mapelGroup"]),
-          Presensi: parseSheetData(getOrCreateSheet(ss, "Presensi", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Pertemuan", "Nama Murid", "Status", "Catatan"]), ["timestamp", "tanggal", "guru", "mapel", "kelas", "pertemuan", "namaMurid", "status", "catatan"]),
-          Nilai: parseSheetData(getOrCreateSheet(ss, "Nilai", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Jenis Penilaian", "Nama Penilaian", "Nama Murid", "Nilai"]), ["timestamp", "tanggal", "guru", "mapel", "kelas", "jenisPenilaian", "namaPenilaian", "namaMurid", "nilai"]),
-          Jurnal: parseSheetData(getOrCreateSheet(ss, "Jurnal", ["Timestamp", "Tanggal", "Jam", "Guru", "Mapel", "Kelas", "Materi", "Tujuan", "Aktivitas", "Metode", "Media", "Refleksi", "Catatan", "Status"]), ["timestamp", "tanggal", "jam", "guru", "mapel", "kelas", "materi", "tujuan", "aktivitas", "metode", "media", "refleksi", "catatan", "status"])
+          Presensi: parseSheetData(getOrCreateSheet(ss, "Presensi", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Pertemuan", "Nama Murid", "Status", "Catatan", "MapelGroup"]), ["timestamp", "tanggal", "guru", "mapel", "kelas", "pertemuan", "namaMurid", "status", "catatan", "mapelGroup"]),
+          Nilai: parseSheetData(getOrCreateSheet(ss, "Nilai", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Jenis Penilaian", "Nama Penilaian", "Nama Murid", "Nilai", "MapelGroup"]), ["timestamp", "tanggal", "guru", "mapel", "kelas", "jenisPenilaian", "namaPenilaian", "namaMurid", "nilai", "mapelGroup"]),
+          Jurnal: parseSheetData(getOrCreateSheet(ss, "Jurnal", ["Timestamp", "Tanggal", "Jam", "Guru", "Mapel", "Kelas", "Materi", "Tujuan", "Aktivitas", "Metode", "Media", "Refleksi", "Catatan", "Status", "MapelGroup"]), ["timestamp", "tanggal", "jam", "guru", "mapel", "kelas", "materi", "tujuan", "aktivitas", "metode", "media", "refleksi", "catatan", "status", "mapelGroup"])
         }
       };
     }
