@@ -170,6 +170,10 @@
                         <i class="fa-solid fa-book-open-reader w-5 text-center text-lg text-amber-500"></i>
                         <span>Jurnal Mengajar</span>
                     </a>
+                    <a href="#" onclick="switchTab('materi'); return false;" id="nav-materi" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition">
+                        <i class="fa-solid fa-folder-open w-5 text-center text-lg text-indigo-500"></i>
+                        <span>Materi Pembelajaran</span>
+                    </a>
 
                     <div class="pt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider px-3">Pengelolaan</div>
 
@@ -516,9 +520,18 @@
                             </div>
 
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Tanggal</label>
-                                <input type="date" id="pres-tanggal" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1 flex items-center justify-between">
+                                    <span>Tanggal Absen</span>
+                                    <span class="text-[10px] text-indigo-500 font-normal" title="Dapat memilih tanggal sebelumnya untuk presensi susulan"><i class="fa-solid fa-clock-rotate-left mr-0.5"></i>Susulan</span>
+                                </label>
+                                <input type="date" id="pres-tanggal" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm font-semibold">
                             </div>
+                        </div>
+
+                        <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/50 rounded-2xl text-xs text-amber-800 dark:text-amber-300 flex items-center space-x-2">
+                            <i class="fa-solid fa-circle-info text-amber-500 text-sm"></i>
+                            <span><strong>Info Presensi Susulan:</strong> Jika ada KBM hari sebelumnya yang terlewat, Anda cukup mengubah kolom <strong>"Tanggal Absen"</strong> di atas sesuai tanggal pelaksanaan KBM yang terlewat. Sistem akan merekam data secara akurat pada tanggal tersebut.</span>
+                        </div>
                         </div>
 
                         <!-- Quick Bulk Actions -->
@@ -853,101 +866,61 @@
             </section>
 
             <section id="view-jurnal" class="hidden space-y-6">
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                    <div class="flex items-center space-x-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
-                        <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-book-open-reader"></i>
+                <!-- ... Jurnal Mengajar content ... -->
+            </section>
+
+            <!-- SECTION MATERI PEMBELAJARAN -->
+            <section id="view-materi" class="hidden space-y-6">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-700">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-folder-open"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Materi & Modul Pembelajaran</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Unggah dan kelola tautan bahan ajar, modul digital, slide PPT, LKPD, dan video pembelajaran</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-800 dark:text-white">Jurnal Kegiatan Mengajar</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Isi catatan pelaksanaan kegiatan pembelajaran harian</p>
+
+                        <button onclick="openAddMateriModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition flex items-center space-x-2 shadow-lg shadow-indigo-500/20">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Tambah Materi Baru</span>
+                        </button>
+                    </div>
+
+                    <!-- Filter & Search Controls -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 dark:bg-slate-700/30 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+                        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Filter Kelas</label>
+                                <select id="materi-filter-kelas" onchange="renderMateriList()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-xs font-semibold">
+                                    <option value="semua">-- Semua Kelas --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Filter Kategori</label>
+                                <select id="materi-filter-kategori" onchange="renderMateriList()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-xs font-semibold">
+                                    <option value="semua">-- Semua Kategori --</option>
+                                    <option value="Modul Ajar">Modul Ajar</option>
+                                    <option value="Slide Presentasi (PPT)">Slide Presentasi (PPT)</option>
+                                    <option value="LKPD / Lembar Kerja">LKPD / Lembar Kerja</option>
+                                    <option value="Video / Link Web">Video / Link Web</option>
+                                    <option value="Bank Soal / Latihan">Bank Soal / Latihan</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="w-full sm:w-64">
+                            <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Pencarian Kata Kunci</label>
+                            <input type="text" id="materi-search" onkeyup="renderMateriList()" placeholder="Cari judul, bab, deskripsi..." class="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-xs">
                         </div>
                     </div>
 
-                    <form id="form-jurnal" onsubmit="saveJurnal(event)" class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Tanggal *</label>
-                                <input type="date" id="jurnal-tanggal" required class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Jam Ke- / Waktu *</label>
-                                <input type="text" id="jurnal-jam" placeholder="Contoh: Jam Ke 1 - 3 (07:00-09:15)" required class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Kelas *</label>
-                                <select id="jurnal-kelas" required class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
-                                    <!-- Dynamic options -->
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Mata Pelajaran *</label>
-                                <select id="jurnal-mapel" required class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
-                                    <!-- Dynamic options -->
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Materi / Bahasan *</label>
-                                <input type="text" id="jurnal-materi" required placeholder="Pokok Pembahasan / Bab" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Status Pembelajaran *</label>
-                                <select id="jurnal-status" required class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
-                                    <option value="Terlaksana">Terlaksana</option>
-                                    <option value="Sebagian">Sebagian</option>
-                                    <option value="Tidak Terlaksana">Tidak Terlaksana</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Tujuan Pembelajaran *</label>
-                            <textarea id="jurnal-tujuan" rows="2" required placeholder="Murid dapat memahami..." class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm"></textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Aktivitas Pembelajaran *</label>
-                            <textarea id="jurnal-aktivitas" rows="2" required placeholder="Langkah-langkah kegiatan mengajar..." class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm"></textarea>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Metode Pembelajaran</label>
-                                <input type="text" id="jurnal-metode" placeholder="Contoh: Diskusi Kelompok, Problem Based Learning" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Media / Alat Pembelajaran</label>
-                                <input type="text" id="jurnal-media" placeholder="Contoh: Proyektor, Modul Digital, PPT" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Refleksi Guru</label>
-                                <textarea id="jurnal-refleksi" rows="2" placeholder="Evaluasi singkat jalannya kelas..." class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm"></textarea>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Catatan Tambahan</label>
-                                <textarea id="jurnal-catatan" rows="2" placeholder="Murid tidak hadir / kendala kelas..." class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end pt-2">
-                            <button type="submit" class="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl shadow-lg shadow-amber-600/30 transition flex items-center space-x-2">
-                                <i class="fa-solid fa-floppy-disk"></i>
-                                <span>Simpan Jurnal</span>
-                            </button>
-                        </div>
-                    </form>
+                    <!-- List Grid Materials -->
+                    <div id="materi-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Dynamic Cards -->
+                    </div>
                 </div>
             </section>
 
@@ -1115,75 +1088,75 @@
                             <span>URL Web App Google Apps Script</span>
                         </h3>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Deployment Web App URL (https://script.google.com/macros/s/.../exec)</label>
-                            <input type="url" id="gas-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        </div>
-
-                        <div class="flex flex-wrap gap-2 pt-1">
-                            <button onclick="saveGasUrl()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2">
-                                <i class="fa-solid fa-floppy-disk"></i>
-                                <span>Simpan URL</span>
-                            </button>
-                            <button onclick="copyShareableLink()" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2" title="Salin Tautan Aplikasi yang Sudah Menyertakan Backend URL">
-                                <i class="fa-solid fa-share-nodes"></i>
-                                <span>Salin Link Berbagi Perangkat</span>
-                            </button>
-                            <button onclick="testGasConnection()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2">
-                                <i class="fa-solid fa-network-wired"></i>
-                                <span>Tes Koneksi Backend</span>
-                            </button>
-                            <button onclick="pullDataFromGas(false)" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2">
-                                <i class="fa-solid fa-cloud-arrow-down"></i>
-                                <span>Tarik Data dari Spreadsheet</span>
-                            </button>
-                            <button onclick="syncDataToGas(false)" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center space-x-2">
-                                <i class="fa-solid fa-cloud-arrow-up"></i>
-                                <span>Kirim Data Lokal ke Spreadsheet</span>
-                            </button>
-                        </div>
+    <!-- Modal Add/Edit Materi Pembelajaran -->
+    <div id="modal-materi" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700 transform transition-all">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-700">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white" id="modal-materi-title">Tambah Materi Pembelajaran</h3>
+                <button type="button" onclick="closeMateriModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="saveMateri(event)" class="space-y-4">
+                <input type="hidden" id="materi-edit-idx">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Mata Pelajaran *</label>
+                        <select id="materi-mapel" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-xs font-semibold">
+                            <!-- Dynamic -->
+                        </select>
                     </div>
-
-                    <!-- Steps Instructions -->
-                    <div class="space-y-3">
-                        <h3 class="font-bold text-base text-slate-800 dark:text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-list-ol text-primary-600"></i>
-                            <span>Panduan Langkah Pemasangan Google Apps Script</span>
-                        </h3>
-
-                        <ol class="list-decimal list-inside space-y-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed pl-1">
-                            <li>Buat dokumen **Google Sheets** baru di Google Drive Anda.</li>
-                            <li>Buka menu **Ekstensi** &gt; **Apps Script** pada Google Sheets tersebut.</li>
-                            <li>Hapus seluruh kode yang ada pada editor `Code.gs`, lalu tempel (*paste*) kode Apps Script dari kotak di bawah.</li>
-                            <li>Klik tombol **Simpan** (ikon disket) atau tekan `Ctrl + S`.</li>
-                            <li>Klik tombol biru **Terapkan (Deploy)** di kanan atas &gt; **Penerapan Baru (New Deployment)**.</li>
-                            <li>Pilih jenis **Aplikasi Web (Web App)**:
-                                <ul class="list-disc list-inside pl-5 my-1 space-y-1 text-slate-500">
-                                    <li><strong>Jalankan Sebagai (Execute as)</strong>: <em>Saya (Me)</em></li>
-                                    <li><strong>Yang memiliki akses (Who has access)</strong>: <em>Siapa saja (Anyone)</em> &mdash; <strong class="text-amber-600 dark:text-amber-400">Penting agar dapat diakses aplikasi!</strong></li>
-                                </ul>
-                            </li>
-                            <li>Klik **Terapkan (Deploy)**, beri izin akses Google (*Allow*), lalu salin **URL Aplikasi Web** yang dihasilkan.</li>
-                            <li>Tempelkan URL tersebut pada kolom input di atas dan klik **Simpan URL**. Semua perangkat yang menggunakan URL ini akan otomatis sinkron!</li>
-                        </ol>
-                    </div>
-
-                    <!-- Apps Script Code Snippet Preview -->
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between">
-                            <h4 class="font-bold text-sm text-slate-800 dark:text-white">Kode Google Apps Script (`Code.gs`)</h4>
-                            <button onclick="copyGasCode()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-lg text-xs transition flex items-center space-x-1.5">
-                                <i class="fa-solid fa-copy"></i>
-                                <span>Salin Kode GAS</span>
-                            </button>
-                        </div>
-                        <div class="bg-slate-900 text-slate-100 p-4 rounded-2xl text-xs font-mono overflow-x-auto max-h-96 leading-relaxed shadow-inner">
-                            <pre id="gas-code-preview"></pre>
-                        </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Kelas *</label>
+                        <select id="materi-kelas" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-xs font-semibold">
+                            <!-- Dynamic -->
+                        </select>
                     </div>
                 </div>
-            </section>
 
-        </main>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Kategori Bahan Ajar *</label>
+                        <select id="materi-kategori" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-xs font-semibold">
+                            <option value="Modul Ajar">Modul Ajar (PDF/Doc)</option>
+                            <option value="Slide Presentasi (PPT)">Slide Presentasi (PPT/Canva)</option>
+                            <option value="LKPD / Lembar Kerja">LKPD / Lembar Kerja</option>
+                            <option value="Video / Link Web">Video / Link Web</option>
+                            <option value="Bank Soal / Latihan">Bank Soal / Latihan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Tanggal Unggah *</label>
+                        <input type="date" id="materi-tanggal" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-xs font-semibold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Judul Materi / Bab Pembahasan *</label>
+                    <input type="text" id="materi-judul" required placeholder="Contoh: Bab 1 - Hak dan Kewajiban Warga Negara" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-xs font-medium">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Link URL Tautan File / Modul (Drive, Canva, YouTube, dll) *</label>
+                    <input type="url" id="materi-link" required placeholder="https://drive.google.com/file/d/..." class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-xs font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Deskripsi / Catatan Tambahan</label>
+                    <textarea id="materi-deskripsi" rows="3" placeholder="Instruksi untuk murid atau ringkasan cakupan bab..." class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-xs"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button" onclick="closeMateriModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs shadow transition">
+                        Simpan Materi
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Modal Add/Edit Master Data -->
@@ -1384,13 +1357,36 @@
                 ],
                 Presensi: [],
                 Nilai: [],
-                Jurnal: []
+                Jurnal: [],
+                Materi: []
             }
         };
 
         let dashChart = null;
         let presensiKelasChartInstance = null;
         let autoSyncTimer = null;
+        let idleTimeout = null;
+        const IDLE_TIME_LIMIT = 30 * 60 * 1000; // 30 Menit (dalam milidetik)
+
+        function resetIdleTimer() {
+            if (idleTimeout) clearTimeout(idleTimeout);
+            if (STATE.currentUser) {
+                idleTimeout = setTimeout(() => {
+                    if (STATE.currentUser) {
+                        logout();
+                        showToast('Sesi telah berakhir otomatis karena tidak ada aktivitas selama 30 menit.', 'info');
+                    }
+                }, IDLE_TIME_LIMIT);
+            }
+        }
+
+        function initIdleTimer() {
+            const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart', 'pointerdown'];
+            activityEvents.forEach(evt => {
+                window.addEventListener(evt, resetIdleTimer, { passive: true });
+            });
+            resetIdleTimer();
+        }
 
         // Load local DB while preserving all user-imported master data and entries
         const savedData = localStorage.getItem('guru_local_db');
@@ -1413,6 +1409,7 @@
                 if (!parsed.Presensi) parsed.Presensi = [];
                 if (!parsed.Nilai) parsed.Nilai = [];
                 if (!parsed.Jurnal) parsed.Jurnal = [];
+                if (!parsed.Materi) parsed.Materi = [];
 
                 STATE.data = parsed;
             } catch (e) {
@@ -1435,6 +1432,7 @@
             renderGasCodePreview();
             initDateFields();
             startAutoCloudSync();
+            initIdleTimer();
 
             const hash = window.location.hash.replace('#', '');
             if (hash && STATE.currentUser) {
@@ -1506,11 +1504,13 @@
                         if (res.data.Presensi && Array.isArray(res.data.Presensi)) STATE.data.Presensi = res.data.Presensi;
                         if (res.data.Nilai && Array.isArray(res.data.Nilai)) STATE.data.Nilai = res.data.Nilai;
                         if (res.data.Jurnal && Array.isArray(res.data.Jurnal)) STATE.data.Jurnal = res.data.Jurnal;
+                        if (res.data.Materi && Array.isArray(res.data.Materi)) STATE.data.Materi = res.data.Materi;
 
                         saveLocalDb();
                         populateSelects();
 
                         if (STATE.activeTab === 'dashboard') renderDashboard();
+                        if (STATE.activeTab === 'materi') renderMateriList();
                         if (STATE.activeTab === 'master') renderMasterTable();
                         if (STATE.activeTab === 'laporan') renderLaporanTable();
                         if (STATE.activeTab === 'presensi') {
@@ -1724,7 +1724,7 @@
                 if (activeMode === 'Informatika & KKA') {
                     descEl.textContent = '"Teknologi informasi mengasah logika, kreativitas, dan wawasan digital. Teruslah bernalar kritis dan berinovasi untuk memajukan peradaban teknologi Indonesia!"';
                 } else {
-                    descEl.textContent = '"Pendidikan Pancasila mengajarkan kita bahwa perbedaan adalah warna, dan persatuan adalah lukisan terindah Indonesia. Jangan pernah lelah mencintai Indonesia yang hebat ini!"';
+                    descEl.textContent = '"Pendidikan Pancasila mengajarkan kita meyakini perbedaan adalah warna, dan persatuan adalah lukisan terindah Indonesia. Jangan pernah lelah mencintai Indonesia yang hebat ini!"';
                 }
             }
 
@@ -1732,9 +1732,11 @@
             document.getElementById('user-avatar-initials').textContent = initials;
 
             populateSelects();
+            resetIdleTimer();
         }
 
         function setupLoggedOutUi() {
+            if (idleTimeout) clearTimeout(idleTimeout);
             document.getElementById('top-header').classList.add('hidden');
             document.getElementById('sidebar').classList.add('hidden');
             switchTab('login');
@@ -1919,6 +1921,7 @@
         }
 
         function logout() {
+            if (idleTimeout) clearTimeout(idleTimeout);
             localStorage.removeItem('guru_user_session');
             STATE.currentUser = null;
             setupLoggedOutUi();
@@ -1929,7 +1932,7 @@
             STATE.activeTab = tabId;
             window.location.hash = tabId;
 
-            const views = ['login', 'dashboard', 'presensi', 'nilai', 'jurnal', 'master', 'laporan', 'panduan'];
+            const views = ['login', 'dashboard', 'presensi', 'nilai', 'jurnal', 'materi', 'master', 'laporan', 'panduan'];
             views.forEach(v => {
                 const el = document.getElementById(`view-${v}`);
                 if (el) el.classList.add('hidden');
@@ -1951,6 +1954,7 @@
             if (tabId === 'dashboard') renderDashboard();
             if (tabId === 'presensi') loadPresensiStudents();
             if (tabId === 'nilai') loadNilaiStudents();
+            if (tabId === 'materi') renderMateriList();
             if (tabId === 'master') renderMasterTable();
             if (tabId === 'laporan') renderLaporanTable();
 
@@ -2061,8 +2065,8 @@
         }
 
         function populateSelects() {
-            const kelasSelects = ['pres-kelas', 'nilai-kelas', 'jurnal-kelas', 'lap-kelas', 'riwayat-pres-kelas', 'rekapan-pres-kelas', 'dash-chart-class'];
-            const mapelSelects = ['pres-mapel', 'nilai-mapel', 'jurnal-mapel', 'lap-mapel'];
+            const kelasSelects = ['pres-kelas', 'nilai-kelas', 'jurnal-kelas', 'materi-kelas', 'materi-filter-kelas', 'lap-kelas', 'riwayat-pres-kelas', 'rekapan-pres-kelas', 'dash-chart-class'];
+            const mapelSelects = ['pres-mapel', 'nilai-mapel', 'jurnal-mapel', 'materi-mapel', 'lap-mapel'];
 
             const activeClasses = getActiveClasses();
             const classOptions = activeClasses.map(k => `<option value="${k.nama}">${k.nama}</option>`).join('');
@@ -2073,7 +2077,7 @@
             kelasSelects.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
-                    if (id === 'lap-kelas' || id === 'riwayat-pres-kelas' || id === 'rekapan-pres-kelas' || id === 'dash-chart-class') {
+                    if (id === 'lap-kelas' || id === 'riwayat-pres-kelas' || id === 'rekapan-pres-kelas' || id === 'dash-chart-class' || id === 'materi-filter-kelas') {
                         el.innerHTML = '<option value="semua">Semua Kelas</option>' + classOptions;
                     } else {
                         el.innerHTML = classOptions;
@@ -2092,133 +2096,155 @@
                 }
             });
         }
-
-        function renderDashboard() {
-            const activeClasses = getActiveClasses();
-            const activeStudents = getActiveStudents();
-            const activeMode = getActiveMode();
-
-            document.getElementById('stat-class-count').textContent = activeClasses.length;
-            document.getElementById('stat-student-count').textContent = activeStudents.length;
-
-            const todayStr = getTodayDateString();
-            const todayPres = STATE.data.Presensi.filter(p => isSameDate(p.tanggal, todayStr) && (!p.mapelGroup || p.mapelGroup === activeMode));
-            const todayJurn = STATE.data.Jurnal.filter(j => isSameDate(j.tanggal, todayStr) && (!j.mapelGroup || j.mapelGroup === activeMode));
-
-            const uniqueTodayStudents = new Set(todayPres.map(p => `${p.kelas}_${p.namaMurid}`));
-            document.getElementById('stat-today-attendance').textContent = uniqueTodayStudents.size;
-            document.getElementById('stat-today-journal').textContent = todayJurn.length;
-
-            renderTodayClassBreakdown(todayStr);
-            renderActivityChart();
-            renderPresensiKelasChart();
+        // --- FUNGI MATERI PEMBELAJARAN ---
+        function openAddMateriModal() {
+            document.getElementById('materi-edit-idx').value = '-1';
+            document.getElementById('modal-materi-title').textContent = 'Tambah Materi Pembelajaran';
+            document.getElementById('materi-judul').value = '';
+            document.getElementById('materi-link').value = '';
+            document.getElementById('materi-deskripsi').value = '';
+            document.getElementById('materi-tanggal').value = getTodayDateString();
+            document.getElementById('modal-materi').classList.remove('hidden');
         }
 
-        function renderTodayClassBreakdown(todayStr) {
-            const container = document.getElementById('today-class-breakdown-container');
-            if (!container) return;
+        function closeMateriModal() {
+            document.getElementById('modal-materi').classList.add('hidden');
+        }
 
-            if (!todayStr) todayStr = getTodayDateString();
+        function saveMateri(e) {
+            e.preventDefault();
+            const editIdx = parseInt(document.getElementById('materi-edit-idx').value);
             const activeMode = getActiveMode();
 
-            const todayPresensi = STATE.data.Presensi.filter(p => {
-                if (!p || !p.tanggal) return false;
-                if (!isSameDate(p.tanggal, todayStr)) return false;
-                if (p.mapelGroup && p.mapelGroup !== activeMode) return false;
-                if (!p.mapelGroup && p.mapel && p.mapel !== activeMode && !p.mapel.includes(activeMode)) return false;
+            const item = {
+                timestamp: new Date().toISOString(),
+                tanggal: document.getElementById('materi-tanggal').value,
+                mapel: document.getElementById('materi-mapel').value,
+                mapelGroup: activeMode,
+                kelas: document.getElementById('materi-kelas').value,
+                kategori: document.getElementById('materi-kategori').value,
+                judul: document.getElementById('materi-judul').value.trim(),
+                link: document.getElementById('materi-link').value.trim(),
+                deskripsi: document.getElementById('materi-deskripsi').value.trim(),
+                guru: STATE.currentUser ? STATE.currentUser.nama : 'Guru'
+            };
+
+            if (editIdx >= 0 && STATE.data.Materi[editIdx]) {
+                STATE.data.Materi[editIdx] = item;
+            } else {
+                STATE.data.Materi.push(item);
+            }
+
+            saveLocalDb();
+            renderMateriList();
+            closeMateriModal();
+            showToast('Materi pembelajaran berhasil disimpan!', 'success');
+
+            if (STATE.gasUrl) syncDataToGas(true);
+        }
+
+        function openEditMateriModal(idx) {
+            const item = STATE.data.Materi[idx];
+            if (!item) return;
+
+            document.getElementById('materi-edit-idx').value = idx;
+            document.getElementById('modal-materi-title').textContent = 'Edit Materi Pembelajaran';
+            document.getElementById('materi-mapel').value = item.mapel;
+            document.getElementById('materi-kelas').value = item.kelas;
+            document.getElementById('materi-kategori').value = item.kategori;
+            document.getElementById('materi-tanggal').value = item.tanggal || getTodayDateString();
+            document.getElementById('materi-judul').value = item.judul;
+            document.getElementById('materi-link').value = item.link;
+            document.getElementById('materi-deskripsi').value = item.deskripsi || '';
+
+            document.getElementById('modal-materi').classList.remove('hidden');
+        }
+
+        function deleteMateri(idx) {
+            if (!STATE.data.Materi[idx]) return;
+            const judul = STATE.data.Materi[idx].judul;
+            STATE.data.Materi.splice(idx, 1);
+            saveLocalDb();
+            renderMateriList();
+            showToast(`Materi "${judul}" berhasil dihapus`, 'info');
+            if (STATE.gasUrl) syncDataToGas(true);
+        }
+
+        function renderMateriList() {
+            const container = document.getElementById('materi-grid-container');
+            if (!container) return;
+
+            const filterKelas = document.getElementById('materi-filter-kelas') ? document.getElementById('materi-filter-kelas').value : 'semua';
+            const filterKat = document.getElementById('materi-filter-kategori') ? document.getElementById('materi-filter-kategori').value : 'semua';
+            const searchKeyword = document.getElementById('materi-search') ? document.getElementById('materi-search').value.toLowerCase().trim() : '';
+            const activeMode = getActiveMode();
+
+            const items = STATE.data.Materi.filter(m => {
+                if (m.mapelGroup && m.mapelGroup !== activeMode) return false;
+                if (filterKelas !== 'semua' && m.kelas !== filterKelas) return false;
+                if (filterKat !== 'semua' && m.kategori !== filterKat) return false;
+                if (searchKeyword) {
+                    const text = `${m.judul} ${m.deskripsi} ${m.kategori} ${m.kelas}`.toLowerCase();
+                    return text.includes(searchKeyword);
+                }
                 return true;
             });
 
-            const classMap = new Map();
-            const activeClasses = getActiveClasses();
-            activeClasses.forEach(k => classMap.set(k.nama, k));
-
-            todayPresensi.forEach(p => {
-                if (p.kelas && !classMap.has(p.kelas)) {
-                    classMap.set(p.kelas, { nama: p.kelas, wali: '-' });
-                }
-            });
-
-            const allClassesToConsider = Array.from(classMap.values());
-
-            const classesWithAttendanceToday = allClassesToConsider.filter(k => {
-                const classPres = todayPresensi.filter(p => p.kelas === k.nama);
-                return classPres.length > 0;
-            });
-
-            if (classesWithAttendanceToday.length === 0) {
+            if (items.length === 0) {
                 container.innerHTML = `
                     <div class="col-span-full p-8 text-center text-slate-400 bg-slate-50 dark:bg-slate-700/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
                         <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 flex items-center justify-center mx-auto mb-2 text-xl">
-                            <i class="fa-solid fa-calendar-day"></i>
+                            <i class="fa-solid fa-folder-open"></i>
                         </div>
-                        <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Belum ada kelas yang diisi presensi hari ini untuk ${activeMode}.</p>
-                        <p class="text-xs text-slate-400 mt-1">Status harian hanya menampilkan kelas yang sudah diisi presensi, karena tidak setiap kelas ada jadwal di setiap harinya.</p>
+                        <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Belum ada materi pembelajaran untuk ${activeMode}.</p>
+                        <p class="text-xs text-slate-400 mt-1">Klik tombol "Tambah Materi Baru" untuk mengunggah bahan ajar.</p>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = classesWithAttendanceToday.map(k => {
-                const rawClassPres = todayPresensi.filter(p => p.kelas === k.nama);
+            const getIconByKategori = (kat) => {
+                if (kat.includes('PPT')) return 'fa-file-powerpoint text-rose-500';
+                if (kat.includes('LKPD')) return 'fa-file-pen text-amber-500';
+                if (kat.includes('Video')) return 'fa-circle-play text-red-500';
+                if (kat.includes('Bank Soal')) return 'fa-file-circle-question text-purple-500';
+                return 'fa-file-pdf text-blue-500';
+            };
 
-                const studentMap = new Map();
-                rawClassPres.forEach(p => {
-                    studentMap.set(p.namaMurid, p);
-                });
-                const classPres = Array.from(studentMap.values());
-
-                const classJurn = STATE.data.Jurnal.filter(j => j.kelas === k.nama && isSameDate(j.tanggal, todayStr) && (!j.mapelGroup || j.mapelGroup === activeMode));
-
-                const totalStudentsInClass = STATE.data.Murid.filter(m => m.kelas === k.nama && (!m.mapelGroup || m.mapelGroup === activeMode || m.mapelGroup === 'Semua')).length || classPres.length;
-                const hadirCount = classPres.filter(p => p.status === 'Hadir').length;
-                const izinCount = classPres.filter(p => p.status === 'Izin').length;
-                const sakitCount = classPres.filter(p => p.status === 'Sakit').length;
-                const alphaCount = classPres.filter(p => p.status === 'Alpha').length;
-
-                const presensiStatusBadge = classPres.length > 0 
-                    ? `<span class="px-2 py-0.5 text-xs font-bold rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"><i class="fa-solid fa-circle-check mr-1"></i> ${classPres.length} Terinput</span>`
-                    : `<span class="px-2 py-0.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400"><i class="fa-solid fa-clock mr-1"></i> Belum Terinput</span>`;
-
-                const jurnalStatusBadge = classJurn.length > 0
-                    ? `<span class="px-2 py-0.5 text-xs font-bold rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"><i class="fa-solid fa-book-bookmark mr-1"></i> ${classJurn.length} Sesi Terisi</span>`
-                    : `<span class="px-2 py-0.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400"><i class="fa-solid fa-pen-line mr-1"></i> Belum Diisi</span>`;
-
+            container.innerHTML = items.map(m => {
+                const realIdx = STATE.data.Materi.indexOf(m);
                 return `
-                    <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
-                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-600 pb-2">
-                            <div>
-                                <h4 class="font-bold text-sm text-slate-800 dark:text-white">${k.nama}</h4>
-                                <p class="text-xs text-slate-400">Wali: ${k.wali || '-'}</p>
-                            </div>
-                            <span class="text-xs font-semibold text-slate-500">${totalStudentsInClass} Murid</span>
-                        </div>
-
+                    <div class="material-card bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col justify-between space-y-4">
                         <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Presensi Hari Ini:</span>
-                                ${presensiStatusBadge}
+                            <div class="flex items-start justify-between gap-2 mb-2">
+                                <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800/50">
+                                    <i class="fa-solid fa-graduation-cap mr-1"></i> ${m.kelas}
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-mono">${m.tanggal || ''}</span>
                             </div>
-                            ${classPres.length > 0 ? `
-                                <div class="grid grid-cols-4 gap-1 text-center mt-1.5 text-xs">
-                                    <div class="p-1 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold">H: ${hadirCount}</div>
-                                    <div class="p-1 rounded bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-bold">I: ${izinCount}</div>
-                                    <div class="p-1 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-bold">S: ${sakitCount}</div>
-                                    <div class="p-1 rounded bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-bold">A: ${alphaCount}</div>
+
+                            <div class="flex items-start space-x-3 mt-3">
+                                <div class="text-2xl pt-0.5">
+                                    <i class="fa-solid ${getIconByKategori(m.kategori)}"></i>
                                 </div>
-                            ` : ''}
+                                <div class="flex-1">
+                                    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400">${m.kategori}</span>
+                                    <h4 class="font-bold text-sm text-slate-800 dark:text-white leading-snug hover:text-indigo-600 transition mt-0.5">${m.judul}</h4>
+                                    ${m.deskripsi ? `<p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${m.deskripsi}</p>` : ''}
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="pt-1 border-t border-slate-200/60 dark:border-slate-600/60">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Jurnal Mengajar:</span>
-                                ${jurnalStatusBadge}
+                        <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+                            <a href="${m.link}" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center space-x-1.5">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                <span>Buka / Unduh</span>
+                            </a>
+
+                            <div class="flex items-center space-x-1">
+                                <button onclick="openEditMateriModal(${realIdx})" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg text-xs" title="Edit Materi"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteMateri(${realIdx})" class="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-700 rounded-lg text-xs" title="Hapus Materi"><i class="fa-solid fa-trash"></i></button>
                             </div>
-                            ${classJurn.length > 0 ? `
-                                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 truncate" title="${classJurn[0].materi}">
-                                    <i class="fa-solid fa-angle-right text-amber-500 mr-1"></i> <strong>${classJurn[0].jam}:</strong> ${classJurn[0].materi}
-                                </p>
-                            ` : ''}
                         </div>
                     </div>
                 `;
@@ -3990,46 +4016,6 @@ function doPost(e) {
       });
       response = { status: "success", count: items.length };
     }
-    else if (action === "saveNilai") {
-      var sheet = getOrCreateSheet(ss, "Nilai", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Jenis Penilaian", "Nama Penilaian", "Nama Murid", "Nilai", "MapelGroup"]);
-      var items = data.items || [];
-      items.forEach(function(item) {
-        sheet.appendRow([
-          item.timestamp,
-          item.tanggal,
-          item.guru,
-          item.mapel,
-          item.kelas,
-          item.jenisPenilaian,
-          item.namaPenilaian,
-          item.namaMurid,
-          item.nilai,
-          item.mapelGroup || ""
-        ]);
-      });
-      response = { status: "success", count: items.length };
-    }
-    else if (action === "saveJurnal") {
-      var sheet = getOrCreateSheet(ss, "Jurnal", ["Timestamp", "Tanggal", "Jam", "Guru", "Mapel", "Kelas", "Materi", "Tujuan", "Aktivitas", "Metode", "Media", "Refleksi", "Catatan", "Status", "MapelGroup"]);
-      sheet.appendRow([
-        data.timestamp,
-        data.tanggal,
-        data.jam,
-        data.guru,
-        data.mapel,
-        data.kelas,
-        data.materi,
-        data.tujuan,
-        data.aktivitas,
-        data.metode,
-        data.media,
-        data.refleksi,
-        data.catatan,
-        data.status,
-        data.mapelGroup || ""
-      ]);
-      response = { status: "success" };
-    }
     else if (action === "getData") {
       response = {
         status: "success",
@@ -4040,7 +4026,8 @@ function doPost(e) {
           Mapel: parseSheetData(getOrCreateSheet(ss, "Mapel", ["ID", "Nama Mapel", "MapelGroup"]), ["id", "nama", "mapelGroup"]),
           Presensi: parseSheetData(getOrCreateSheet(ss, "Presensi", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Pertemuan", "Nama Murid", "Status", "Catatan", "MapelGroup"]), ["timestamp", "tanggal", "guru", "mapel", "kelas", "pertemuan", "namaMurid", "status", "catatan", "mapelGroup"]),
           Nilai: parseSheetData(getOrCreateSheet(ss, "Nilai", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Jenis Penilaian", "Nama Penilaian", "Nama Murid", "Nilai", "MapelGroup"]), ["timestamp", "tanggal", "guru", "mapel", "kelas", "jenisPenilaian", "namaPenilaian", "namaMurid", "nilai", "mapelGroup"]),
-          Jurnal: parseSheetData(getOrCreateSheet(ss, "Jurnal", ["Timestamp", "Tanggal", "Jam", "Guru", "Mapel", "Kelas", "Materi", "Tujuan", "Aktivitas", "Metode", "Media", "Refleksi", "Catatan", "Status", "MapelGroup"]), ["timestamp", "tanggal", "jam", "guru", "mapel", "kelas", "materi", "tujuan", "aktivitas", "metode", "media", "refleksi", "catatan", "status", "mapelGroup"])
+          Jurnal: parseSheetData(getOrCreateSheet(ss, "Jurnal", ["Timestamp", "Tanggal", "Jam", "Guru", "Mapel", "Kelas", "Materi", "Tujuan", "Aktivitas", "Metode", "Media", "Refleksi", "Catatan", "Status", "MapelGroup"]), ["timestamp", "tanggal", "jam", "guru", "mapel", "kelas", "materi", "tujuan", "aktivitas", "metode", "media", "refleksi", "catatan", "status", "mapelGroup"]),
+          Materi: parseSheetData(getOrCreateSheet(ss, "Materi", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Kategori", "Judul", "Link", "Deskripsi", "MapelGroup"]), ["timestamp", "tanggal", "guru", "mapel", "kelas", "kategori", "judul", "link", "deskripsi", "mapelGroup"])
         }
       };
     }
@@ -4049,6 +4036,7 @@ function doPost(e) {
       writeSheetData(ss, "Murid", ["NIS", "Nama Murid", "Kelas", "JK", "MapelGroup"], allData.Murid || [], ["nis", "nama", "kelas", "jk", "mapelGroup"]);
       writeSheetData(ss, "Kelas", ["ID", "Nama Kelas", "Wali Kelas", "MapelGroup"], allData.Kelas || [], ["id", "nama", "wali", "mapelGroup"]);
       writeSheetData(ss, "Mapel", ["ID", "Nama Mapel", "MapelGroup"], allData.Mapel || [], ["id", "nama", "mapelGroup"]);
+      writeSheetData(ss, "Materi", ["Timestamp", "Tanggal", "Guru", "Mapel", "Kelas", "Kategori", "Judul", "Link", "Deskripsi", "MapelGroup"], allData.Materi || [], ["timestamp", "tanggal", "guru", "mapel", "kelas", "kategori", "judul", "link", "deskripsi", "mapelGroup"]);
       response = { status: "success", message: "Sinkronisasi berhasil!" };
     }
   } catch (err) {
